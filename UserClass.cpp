@@ -20,6 +20,7 @@ void UserClass::Init(){
         }
         file.close();
     }
+    this->ArticalInit();
 }
 void UserClass::SaveUserList(){
     ofstream file;
@@ -225,6 +226,22 @@ Message* UserClass::CreateMessage(Artical* artical, string who, string message){
     }
     return tmp;
 }
+void UserClass::ShowArtical(User* user){
+    Artical* artical_tmp;
+    Message* message_tmp;
+    for(Artical* artical_tmp=user->first_artical; artical_tmp!=NULL; artical_tmp=artical_tmp->next){
+        cout << "Artical ID: " << artical_tmp->index << "\tAuthor: " << artical_tmp->author << endl;
+        cout << "\tBegin\n"; 
+        cout << "\t\t"  << artical_tmp->artical << endl;
+        cout << "\tEnd\n";
+        for(Message* message_tmp = artical_tmp->first_message; message_tmp != NULL; message_tmp = message_tmp->next){
+            cout << "\tMessage ID: " << message_tmp->index << "\twho: " << message_tmp->who << endl;
+            cout << "\t\tBegin" << endl;
+            cout << "\t\t\t" << message_tmp->message << endl;
+            cout << "\t\tEnd" << endl;
+        }
+    }
+}
 Artical* UserClass::FindArticalFromIndex(string account, int artical_index){
     User *user_tmp = this->FindUser(string("account"), account);
     Artical* tmp;
@@ -244,6 +261,32 @@ Message* UserClass::FindMessageFromIndex(string account, int artical_index, int 
         }
     }
     return NULL;
+}
+void UserClass::SaveArtical(){
+    int count;
+    User* user_tmp;
+    Artical* art_tmp;
+    Message* mess_tmp;
+    for(user_tmp = this->first_user, count = 0; user_tmp != NULL; user_tmp = user_tmp->next){
+        for(art_tmp = user_tmp->first_artical ; art_tmp != NULL; art_tmp = art_tmp->next, count++){
+            char buf[256];
+            sprintf(buf, "%d", count);
+            string file_name = string("Artical/artical_") + string(buf) + string(".txt");
+            ofstream file;
+            file.open(file_name.c_str(), fstream::out);
+            file << "New Artical:\n";
+            file << (art_tmp->artical + "\n");
+            file << "Author:\n";
+            file << (art_tmp->author + "\n");
+            for(mess_tmp = art_tmp->first_message; mess_tmp != NULL; mess_tmp = mess_tmp->next){
+                file << "A message:\n";
+                file << (mess_tmp->message + "\n");
+                file << "Who:\n";
+                file << (mess_tmp->who + "\n");
+            }
+            file.close();
+        }
+    }
 }
 
 

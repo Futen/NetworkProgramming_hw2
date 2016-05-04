@@ -77,6 +77,8 @@ public:
     bool DeleteUser(string IP, int port);
     /***************/
     void ArticalInit();
+    void ShowArtical(User* user);
+    void SaveArtical();
     Artical* CreateArtical(User* user, string artical);
     Message* CreateMessage(Artical* artical, string who, string message);
     /***************/
