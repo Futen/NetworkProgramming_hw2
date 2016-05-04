@@ -7,7 +7,8 @@ int main(){
     A.Init();
     tmp = A.FindUser(string("account"), string("fulton84717"));
     A.ShowArtical(tmp);
-    system("rm Artical/*");
+    //system("rm Artical/*");
+
     A.SaveArtical();
     return 0;
 }

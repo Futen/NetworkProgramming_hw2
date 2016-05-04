@@ -290,7 +290,28 @@ void UserClass::SaveArtical(){
         }
     }
 }
-
+Artical* UserClass::ModifyArtical(string IP, int port, int artical_index, string artical){
+    User* user = this->FindUserFromIPAndPort(IP, port);
+    if(user != NULL){
+        Artical* tmp = this->FindArticalFromIndex(user->account, artical_index);
+        if(tmp != NULL){
+            tmp->artical = artical;
+            return tmp;
+        }
+    }
+    return NULL;
+}
+Message* UserClass::ModifyMessage(string IP, int port, int artical_index, int message_index, string message){
+    User *user = this->FindUserFromIPAndPort(IP, port);
+    if(user != NULL){
+        Message* tmp = this->FindMessageFromIndex(user->account, artical_index, message_index);
+        if(tmp != NULL){
+            tmp->message = message;
+            return tmp;
+        }
+    }
+    return NULL;
+}
 
 
 

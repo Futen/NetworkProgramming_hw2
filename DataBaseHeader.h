@@ -81,6 +81,8 @@ public:
     void SaveArtical();
     Artical* CreateArtical(User* user, string artical);
     Message* CreateMessage(Artical* artical, string who, string message);
+    Artical* ModifyArtical(string IP, int port, int artical_index, string artical);
+    Message* ModifyMessage(string IP, int port, int artical_index, int message_index, string message);
     /***************/
 };
 #endif
