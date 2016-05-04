@@ -245,9 +245,11 @@ void UserClass::ShowArtical(User* user){
 Artical* UserClass::FindArticalFromIndex(string account, int artical_index){
     User *user_tmp = this->FindUser(string("account"), account);
     Artical* tmp;
-    for(tmp = user_tmp->first_artical; tmp != NULL; tmp = tmp->next){
-        if(tmp->index == artical_index)
-            return tmp;
+    if(user_tmp != NULL){
+        for(tmp = user_tmp->first_artical; tmp != NULL; tmp = tmp->next){
+            if(tmp->index == artical_index)
+                return tmp;
+        }
     }
     return NULL;
 }
