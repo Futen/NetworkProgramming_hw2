@@ -190,6 +190,11 @@ void CommandProcess(int command, int sockfd, struct sockaddr *pcliaddr, socklen_
             else
                 sendto(sockfd, fail, strlen(fail)+1, 0, pcliaddr, clilen);
             break;
+        case SHOWUSERARTICAL:
+            recvData = userObject.ShowUserArtical(IP, port);
+            sendto(sockfd, success, strlen(success)+1, 0, pcliaddr, clilen);
+            sendto(sockfd, recvData.c_str(), strlen(recvData.c_str())+1, 0, pcliaddr, clilen);
+            break;
     }
 }
 

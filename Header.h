@@ -33,6 +33,7 @@
 #define DELETEMYACCOUNT 5
 #define MODIFYACCOUNT 6
 #define NEWARTICAL 7
+#define SHOWUSERARTICAL 8
 
 using namespace std;
 

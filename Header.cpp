@@ -15,6 +15,8 @@ int CommandChoose(string command){
         return MODIFYACCOUNT;
     else if(command == "NEWARTICAL")
         return NEWARTICAL;
+    else if(command == "SHOWUSERARTICAL")
+        return SHOWUSERARTICAL;
     else
         return DEFAULT;
 }

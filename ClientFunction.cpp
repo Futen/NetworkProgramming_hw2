@@ -108,7 +108,8 @@ int Login(int sockfd, struct sockaddr *server_addr, socklen_t servlen){
 void ShowCommand(){
     cout << "***************" << endl;
     cout << "$ ShowMyInfo" << endl;
-    cout << "& NewArtical" << endl;
+    cout << "$ NewArtical" << endl;
+    cout << "$ ShowMyArtical" << endl;
     cout << "$ DeleteMyAccount" << endl;
     cout << "$ ModifyMyAccount" << endl;
     cout << "$ Logout" << endl;
@@ -120,6 +121,7 @@ string GetCommandString(string input){
     else if(input == "Logout")  return string("LOGOUT");
     else if(input == "ModifyMyAccount") return string("MODIFYACCOUNT");
     else if(input == "NewArtical") return string("NEWARTICAL");
+    else if(input == "ShowMyArtical") return string("SHOWUSERARTICAL");
     else    return string("UNKNOWN");
 }
 void ProcessCommand(int command, string sendData, int sockfd, struct sockaddr *server_addr, socklen_t servlen){
@@ -184,6 +186,18 @@ void ProcessCommand(int command, string sendData, int sockfd, struct sockaddr *s
             recvData = recvline;
             if(recvData == success) cout << "Create Artical Success!!" << endl;
             else    cout << "Create Artical Fail!!" << endl;
+            break;
+        case SHOWUSERARTICAL:
+            sendto(sockfd, sendData.c_str(), strlen(sendData.c_str())+1, 0, server_addr, servlen);
+            recvfrom(sockfd, recvline, MAXLINE, 0, server_addr, &servlen);
+            recvData = recvline;
+            if(recvData == success){
+                recvfrom(sockfd, recvline, MAXLINE, 0, server_addr, &servlen);
+                recvData = recvline;
+                cout << recvData;
+            }
+            else
+                cout << "Show My Artical Fail!!" << endl;
             break;
         default:
             cout << "Unknown command" << endl;

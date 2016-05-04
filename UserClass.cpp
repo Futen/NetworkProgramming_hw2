@@ -265,6 +265,7 @@ Message* UserClass::FindMessageFromIndex(string account, int artical_index, int 
     return NULL;
 }
 void UserClass::SaveArtical(){
+    system("rm Artical/*");
     int count;
     User* user_tmp;
     Artical* art_tmp;
@@ -327,6 +328,26 @@ Message* UserClass::NewUserMessage(string IP, int port, int artical_index, strin
         return this->CreateMessage(artical, user->account, message);
     }
     return NULL;
+}
+string UserClass::ShowUserArtical(string IP, int port){
+    string output = "";
+    char line[MAXLINE];
+    User* user = this->FindUserFromIPAndPort(IP, port);
+    Artical* artical_tmp;
+    Message* message_tmp;
+    for(Artical* artical_tmp=user->first_artical; artical_tmp!=NULL; artical_tmp=artical_tmp->next){
+        sprintf(line, "Artical ID: %d\tAuthor: %s\n", artical_tmp->index, artical_tmp->author.c_str());
+        output += string(line);
+        sprintf(line, "\tBegin\n\t\t%s\n\tEnd\n", artical_tmp->artical.c_str());
+        output += string(line);
+        for(Message* message_tmp = artical_tmp->first_message; message_tmp != NULL; message_tmp = message_tmp->next){
+            sprintf(line, "\tMessage ID: %d\twho: %s\n", message_tmp->index, message_tmp->who.c_str());
+            output += string(line);
+            sprintf(line, "\t\tBegin\n\t\t\t%s\n\t\tEnd\n", message_tmp->message.c_str());
+            output += string(line);
+        }
+    }
+    return output;
 }
 
 
