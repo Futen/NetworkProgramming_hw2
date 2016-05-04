@@ -312,6 +312,22 @@ Message* UserClass::ModifyMessage(string IP, int port, int artical_index, int me
     }
     return NULL;
 }
+Artical* UserClass::NewUserArtical(string IP, int port, string artical){
+    User* user = this->FindUserFromIPAndPort(IP, port);
+    if(user != NULL){
+        cout << "Find user\n";
+        return this->CreateArtical(user, artical);
+    }
+    return NULL;
+}
+Message* UserClass::NewUserMessage(string IP, int port, int artical_index, string message){
+    User* user = this->FindUserFromIPAndPort(IP, port);
+    Artical* artical = this->FindArticalFromIndex(user->account, artical_index);
+    if(artical != NULL){
+        return this->CreateMessage(artical, user->account, message);
+    }
+    return NULL;
+}
 
 
 

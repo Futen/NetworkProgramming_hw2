@@ -13,6 +13,8 @@ int CommandChoose(string command){
         return DELETEMYACCOUNT;
     else if(command == "MODIFYACCOUNT")
         return MODIFYACCOUNT;
+    else if(command == "NEWARTICAL")
+        return NEWARTICAL;
     else
         return DEFAULT;
 }

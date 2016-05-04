@@ -62,9 +62,11 @@ private:
     User* first_user;
     User* last_user;
 protected:
-    User* FindUserFromIPAndPort(string IP, int port);
+    Artical* CreateArtical(User* user, string artical);
+    Message* CreateMessage(Artical* artical, string who, string message);
     Artical* FindArticalFromIndex(string account, int artical_index);
     Message* FindMessageFromIndex(string account, int artical_index, int message_index);
+    User* FindUserFromIPAndPort(string IP, int port);
 public:
     /****************/
     void Init();
@@ -79,8 +81,9 @@ public:
     void ArticalInit();
     void ShowArtical(User* user);
     void SaveArtical();
-    Artical* CreateArtical(User* user, string artical);
-    Message* CreateMessage(Artical* artical, string who, string message);
+    Artical* NewUserArtical(string IP, int port, string artical);
+    Message* NewUserMessage(string IP, int port, int artical_index, string message);
+    string ShowUserArtical(string IP, int port);
     Artical* ModifyArtical(string IP, int port, int artical_index, string artical);
     Message* ModifyMessage(string IP, int port, int artical_index, int message_index, string message);
     /***************/

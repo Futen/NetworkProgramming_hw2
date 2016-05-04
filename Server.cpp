@@ -32,8 +32,6 @@ void WaitForData(int sockfd, struct sockaddr *pcliaddr, socklen_t clilen){
     fd_set allset;
 
     userObject.Init();
-    articalObject.Init();
-    articalObject.ShowArtical();
 
     timeout.tv_sec = 1;
     timeout.tv_usec = 0;
@@ -71,6 +69,8 @@ void CommandProcess(int command, int sockfd, struct sockaddr *pcliaddr, socklen_
     char fail[] = "fail";
     User* check;
     User* who;
+    Artical* artical;
+    string recvData;
     string account;
     string password;
     string nickname;
@@ -177,6 +177,19 @@ void CommandProcess(int command, int sockfd, struct sockaddr *pcliaddr, socklen_
             }
             else
                 sendto(sockfd, fail, strlen(fail)+1, 0, pcliaddr, clilen);
+            break;
+        case NEWARTICAL:
+            nbytes = recvfrom(sockfd, recvline, MAXLINE, 0, pcliaddr, &clilen);
+            recvData = recvline;
+            if((artical = userObject.NewUserArtical(IP, port, recvData)) != NULL){
+                userObject.SaveArtical();
+                sendto(sockfd, success, strlen(success)+1, 0, pcliaddr, clilen);
+                cout << artical->author  << " Create New Artical:{" << endl << "\t";
+                cout << recvData << endl << "}" << endl;
+            }
+            else
+                sendto(sockfd, fail, strlen(fail)+1, 0, pcliaddr, clilen);
+            break;
     }
 }
 
