@@ -350,7 +350,29 @@ string UserClass::ShowUserArtical(string IP, int port){
     }
     return output;
 }
-
+Artical* UserClass::DeleteArticalMessage(Artical* artical){
+    Message* tmp;
+    Message* tmp2;
+    for(tmp = artical->first_message; tmp != NULL; tmp = tmp2){
+        tmp2 = tmp->next;
+        delete tmp;
+    }
+    return artical;
+}
+bool UserClass::DeleteUserArtical(string IP, int port, int artical_index){
+    User* user = this->FindUserFromIPAndPort(IP, port);
+    if(user != NULL){
+        Artical* tmp = this->FindArticalFromIndex(user->account, artical_index);
+        if(tmp != NULL){
+            Message* message;
+            if(tmp->previous != NULL && tmp->next != NULL){
+                tmp->previous->next = tmp->next;
+                tmp->next->previous = tmp->previous;
+            }
+        }
+    }
+    return false;
+}
 
 
 

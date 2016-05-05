@@ -67,6 +67,7 @@ protected:
     Artical* FindArticalFromIndex(string account, int artical_index);
     Message* FindMessageFromIndex(string account, int artical_index, int message_index);
     User* FindUserFromIPAndPort(string IP, int port);
+    Artical* DeleteArticalMessage(Artical* artical);
 public:
     /****************/
     void Init();
@@ -83,6 +84,7 @@ public:
     void SaveArtical();
     Artical* NewUserArtical(string IP, int port, string artical);
     Message* NewUserMessage(string IP, int port, string author_account, int artical_index, string message);
+    bool DeleteUserArtical(string IP, int port, int artical_index);
     string ShowUserArtical(string IP, int port);
     Artical* ModifyArtical(string IP, int port, int artical_index, string artical);
     Message* ModifyMessage(string IP, int port, int artical_index, int message_index, string message);
