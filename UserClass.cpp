@@ -321,10 +321,11 @@ Artical* UserClass::NewUserArtical(string IP, int port, string artical){
     }
     return NULL;
 }
-Message* UserClass::NewUserMessage(string IP, int port, int artical_index, string message){
+Message* UserClass::NewUserMessage(string IP, int port, string author_account, int artical_index, string message){
     User* user = this->FindUserFromIPAndPort(IP, port);
-    Artical* artical = this->FindArticalFromIndex(user->account, artical_index);
-    if(artical != NULL){
+    User* user_author = this->FindUser(string("account"), author_account);
+    Artical* artical = this->FindArticalFromIndex(user_author->account, artical_index);
+    if(artical != NULL && user != NULL && user_author != NULL){
         return this->CreateMessage(artical, user->account, message);
     }
     return NULL;

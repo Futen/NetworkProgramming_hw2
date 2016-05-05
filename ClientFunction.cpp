@@ -110,6 +110,7 @@ void ShowCommand(){
     cout << "$ ShowMyInfo" << endl;
     cout << "$ NewArtical" << endl;
     cout << "$ ShowMyArtical" << endl;
+    cout << "$ NewMessage" << endl;
     cout << "$ DeleteMyAccount" << endl;
     cout << "$ ModifyMyAccount" << endl;
     cout << "$ Logout" << endl;
@@ -122,11 +123,13 @@ string GetCommandString(string input){
     else if(input == "ModifyMyAccount") return string("MODIFYACCOUNT");
     else if(input == "NewArtical") return string("NEWARTICAL");
     else if(input == "ShowMyArtical") return string("SHOWUSERARTICAL");
+    else if(input == "NewMessage") return string("NEWMESSAGE");
     else    return string("UNKNOWN");
 }
 void ProcessCommand(int command, string sendData, int sockfd, struct sockaddr *server_addr, socklen_t servlen){
     char sendline[MAXLINE];
     char recvline[MAXLINE];
+    string buf;
     string recvData;
     string success = "success";
     string fail = "fail";
@@ -198,6 +201,22 @@ void ProcessCommand(int command, string sendData, int sockfd, struct sockaddr *s
             }
             else
                 cout << "Show My Artical Fail!!" << endl;
+            break;
+        case NEWMESSAGE:
+            sendto(sockfd, sendData.c_str(), strlen(sendData.c_str())+1, 0, server_addr, servlen);
+            cout << "The Artical Author: ";
+            getline(cin, buf);
+            sendto(sockfd, buf.c_str(), strlen(buf.c_str())+1, 0, server_addr, servlen);
+            cout << "The Artical Index: ";
+            getline(cin, buf);
+            sendto(sockfd, buf.c_str(), strlen(buf.c_str())+1, 0, server_addr, servlen);
+            cout << "The Message: " << endl;
+            getline(cin, buf);
+            sendto(sockfd, buf.c_str(), strlen(buf.c_str())+1, 0, server_addr, servlen);
+            recvfrom(sockfd, recvline, MAXLINE, 0, server_addr, &servlen);
+            recvData = recvline;
+            if(recvData == success) cout << "Create Message Success!!" << endl;
+            else    cout << "Create Message Fail!!" << endl;
             break;
         default:
             cout << "Unknown command" << endl;

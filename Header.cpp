@@ -17,6 +17,8 @@ int CommandChoose(string command){
         return NEWARTICAL;
     else if(command == "SHOWUSERARTICAL")
         return SHOWUSERARTICAL;
+    else if(command == "NEWMESSAGE")
+        return NEWMESSAGE;
     else
         return DEFAULT;
 }

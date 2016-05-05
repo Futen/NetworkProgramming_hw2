@@ -34,6 +34,7 @@
 #define MODIFYACCOUNT 6
 #define NEWARTICAL 7
 #define SHOWUSERARTICAL 8
+#define NEWMESSAGE 9
 
 using namespace std;
 

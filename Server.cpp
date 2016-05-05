@@ -64,6 +64,8 @@ void WaitForData(int sockfd, struct sockaddr *pcliaddr, socklen_t clilen){
 }
 void CommandProcess(int command, int sockfd, struct sockaddr *pcliaddr, socklen_t clilen, string IP, int port){
     int nbytes;
+    int artical_index;
+    int message_index;
     char recvline[MAXLINE];
     char success[] = "success";
     char fail[] = "fail";
@@ -194,6 +196,20 @@ void CommandProcess(int command, int sockfd, struct sockaddr *pcliaddr, socklen_
             recvData = userObject.ShowUserArtical(IP, port);
             sendto(sockfd, success, strlen(success)+1, 0, pcliaddr, clilen);
             sendto(sockfd, recvData.c_str(), strlen(recvData.c_str())+1, 0, pcliaddr, clilen);
+            break;
+        case NEWMESSAGE:
+            nbytes = recvfrom(sockfd, recvline, MAXLINE, 0, pcliaddr, &clilen);
+            account = recvline;
+            nbytes = recvfrom(sockfd, recvline, MAXLINE, 0, pcliaddr, &clilen);
+            artical_index = atoi(recvline);
+            nbytes = recvfrom(sockfd, recvline, MAXLINE, 0, pcliaddr, &clilen);
+            recvData = recvline;
+            if( userObject.NewUserMessage(IP, port, account, artical_index, recvData) != NULL ){
+                userObject.SaveArtical();
+                sendto(sockfd, success, strlen(success)+1, 0, pcliaddr, clilen);
+            }
+            else
+                sendto(sockfd, fail, strlen(fail)+1, 0, pcliaddr, clilen);
             break;
     }
 }
