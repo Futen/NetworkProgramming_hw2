@@ -369,7 +369,48 @@ bool UserClass::DeleteUserArtical(string IP, int port, int artical_index){
                 tmp->previous->next = tmp->next;
                 tmp->next->previous = tmp->previous;
             }
+            else if(tmp->previous == NULL && tmp->next != NULL){
+                user->first_artical = tmp->next;
+                tmp->next->previous = NULL;
+            }
+            else if(tmp->previous != NULL && tmp->next == NULL){
+                user->last_artical = tmp->previous;
+                tmp->previous->next = NULL;
+            }
+            else{
+                user->first_artical = NULL;
+                user->last_artical = NULL;
+            }
+            this->DeleteArticalMessage(tmp);
+            delete tmp;
+            return true;
         }
+    }
+    return false;
+}
+bool UserClass::DeleteUserMessage(string IP, int port, string author_account, int artical_index, int message_index){
+    User* user = this->FindUserFromIPAndPort(IP, port);
+    Artical* artical = this->FindArticalFromIndex(author_account, artical_index);
+    Message* message = this->FindMessageFromIndex(author_account, artical_index, message_index);
+    if(user != NULL && message != NULL && artical != NULL && user->account == message->who){
+        if(message->previous != NULL && message->next != NULL){
+            message->previous->next = message->next;
+            message->next->previous = message->previous;
+        }
+        else if(message->previous == NULL && message->next != NULL){
+            artical->first_message = message->next;
+            message->next->previous = NULL;
+        }
+        else if(message->previous != NULL && message->next == NULL){
+            artical->last_message = message->previous;
+            message->previous->next = NULL;
+        }
+        else{
+            artical->first_message = NULL;
+            artical->last_message = NULL;
+        }
+        delete message;
+        return true;
     }
     return false;
 }

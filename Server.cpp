@@ -77,8 +77,18 @@ void CommandProcess(int command, int sockfd, struct sockaddr *pcliaddr, socklen_
     string password;
     string nickname;
     string birthday;
+    Packet *packet;
 
     switch(command){
+        case TEST:
+            nbytes = recvfrom(sockfd, recvline, MAXLINE, 0, pcliaddr, &clilen);
+            packet = (Packet*)recvline;
+            cout << packet->count << endl;
+            cout << packet->buf[0] << endl;
+            cout << packet->buf[1] << endl;
+            cout << packet->buf[2] << endl;
+            cout << packet->buf[3] << endl;
+            break;
         case LOGIN:
             nbytes = recvfrom(sockfd, recvline, MAXLINE, 0, pcliaddr, &clilen);
             account = recvline;
@@ -205,6 +215,16 @@ void CommandProcess(int command, int sockfd, struct sockaddr *pcliaddr, socklen_
             nbytes = recvfrom(sockfd, recvline, MAXLINE, 0, pcliaddr, &clilen);
             recvData = recvline;
             if( userObject.NewUserMessage(IP, port, account, artical_index, recvData) != NULL ){
+                userObject.SaveArtical();
+                sendto(sockfd, success, strlen(success)+1, 0, pcliaddr, clilen);
+            }
+            else
+                sendto(sockfd, fail, strlen(fail)+1, 0, pcliaddr, clilen);
+            break;
+        case DELETEUSERARTICAL:
+            nbytes = recvfrom(sockfd, recvline, MAXLINE, 0, pcliaddr, &clilen);
+            recvData = recvline;
+            if(userObject.DeleteUserArtical(IP, port, atoi(recvData.c_str()))){
                 userObject.SaveArtical();
                 sendto(sockfd, success, strlen(success)+1, 0, pcliaddr, clilen);
             }

@@ -108,9 +108,11 @@ int Login(int sockfd, struct sockaddr *server_addr, socklen_t servlen){
 void ShowCommand(){
     cout << "***************" << endl;
     cout << "$ ShowMyInfo" << endl;
-    cout << "$ NewArtical" << endl;
     cout << "$ ShowMyArtical" << endl;
+    cout << "$ NewArtical" << endl;
+    cout << "$ DeleteMyArtical" << endl;
     cout << "$ NewMessage" << endl;
+    cout << "$ DeleteMyMessage" << endl;
     cout << "$ DeleteMyAccount" << endl;
     cout << "$ ModifyMyAccount" << endl;
     cout << "$ Logout" << endl;
@@ -118,12 +120,15 @@ void ShowCommand(){
 }
 string GetCommandString(string input){
     if(input == "ShowMyInfo")   return string("SHOWMYINFO");
+    else if(input == "TEST") return string("TEST");
     else if(input == "DeleteMyAccount") return string("DELETEMYACCOUNT");
     else if(input == "Logout")  return string("LOGOUT");
     else if(input == "ModifyMyAccount") return string("MODIFYACCOUNT");
     else if(input == "NewArtical") return string("NEWARTICAL");
     else if(input == "ShowMyArtical") return string("SHOWUSERARTICAL");
     else if(input == "NewMessage") return string("NEWMESSAGE");
+    else if(input == "DeleteMyArtical") return string("DELETEUSERARTICAL");
+    else if(input == "DeleteMyMessage") return string("DELETEUSERMESSAGE");
     else    return string("UNKNOWN");
 }
 void ProcessCommand(int command, string sendData, int sockfd, struct sockaddr *server_addr, socklen_t servlen){
@@ -133,8 +138,19 @@ void ProcessCommand(int command, string sendData, int sockfd, struct sockaddr *s
     string recvData;
     string success = "success";
     string fail = "fail";
+    Packet* packet;
 
     switch(command){
+        case TEST:
+            sendto(sockfd, sendData.c_str(), strlen(sendData.c_str())+1, 0, server_addr, servlen);
+            packet = NewPacket();
+            PacketPush(packet, user_account);
+            PacketPush(packet, user_password);
+            PacketPush(packet, user_nickname);
+            PacketPush(packet, user_birthday);
+            sendto(sockfd, (char*)packet, sizeof(Packet), 0, server_addr, servlen);
+            delete packet;
+            break;
         case SHOWMYINFO:
             cout << "My Account:{" << endl;
             cout << "\taccount: " << user_account << endl;
@@ -217,6 +233,16 @@ void ProcessCommand(int command, string sendData, int sockfd, struct sockaddr *s
             recvData = recvline;
             if(recvData == success) cout << "Create Message Success!!" << endl;
             else    cout << "Create Message Fail!!" << endl;
+            break;
+        case DELETEUSERARTICAL:
+            sendto(sockfd, sendData.c_str(), strlen(sendData.c_str())+1, 0, server_addr, servlen);
+            cout << "The Artical Index: ";
+            cin >> buf;
+            sendto(sockfd, buf.c_str(), strlen(buf.c_str())+1, 0, server_addr, servlen);
+            recvfrom(sockfd, recvline, MAXLINE, 0, server_addr, &servlen);
+            recvData = recvline;
+            if(recvData == success) cout << "Delete Artical Success" << endl;
+            else cout << "Delete Artical Fail" << endl;
             break;
         default:
             cout << "Unknown command" << endl;
