@@ -205,12 +205,13 @@ Message* UserClass::CreateMessage(Artical *artical, string who, string message, 
 Artical* UserClass::CreateArtical(User *user, string artical, string time){
     Artical* tmp = this->CreateArtical(user, artical);
     tmp->time = time;
+    return tmp;
 }
 Artical* UserClass::CreateArtical(User *user, string artical){
     time_t ticks;
     char buf[MAXLINE];
     ticks = time(NULL);
-    snprintf(buf, sizeof(buf), "%.24s\r\n", ctime(&ticks));
+    snprintf(buf, sizeof(buf), "%.24s", ctime(&ticks));
     Artical* tmp = new Artical;
     tmp->author = user->account;
     tmp->artical = artical;
@@ -238,7 +239,7 @@ Message* UserClass::CreateMessage(Artical* artical, string who, string message){
     time_t ticks;
     char buf[MAXLINE];
     ticks = time(NULL);
-    snprintf(buf, sizeof(buf), "%.24s\r\n", ctime(&ticks));
+    snprintf(buf, sizeof(buf), "%.24s", ctime(&ticks));
     Message* tmp = new Message;
     tmp->who = who;
     tmp->message = message;
@@ -321,7 +322,7 @@ void UserClass::SaveArtical(){
                 file << "Who:\n";
                 file << (mess_tmp->who + "\n");
                 file << "Message_Time:\n";
-                file << (mess_tmp->time+"\n");
+                file << (mess_tmp->time + "\n");
             }
             file.close();
         }

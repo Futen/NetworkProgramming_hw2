@@ -156,6 +156,7 @@ void CommandProcess(int command, char* line, int sockfd, struct sockaddr *pcliad
         case DELETEMYACCOUNT:
             packet_tmp = NewPacket(0);
             if(userObject.DeleteUser(IP, port)){
+                userObject.SaveArtical();
                 PacketPush(packet_tmp, success);
                 sendto(sockfd, (char*)packet_tmp, sizeof(Packet), 0,pcliaddr, clilen);
                 userObject.SaveUserList();
