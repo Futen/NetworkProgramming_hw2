@@ -122,13 +122,17 @@ void CommandProcess(int command, char* line, int sockfd, struct sockaddr *pcliad
             }
             break;
         case CREATEACCOUNT:
+            time_t ticks;
+            char buf[MAXLINE];
+            ticks = time(NULL);
+            snprintf(buf, sizeof(buf), "%.24s", ctime(&ticks));
             account = packet->buf[1];
             password = packet->buf[2];
             nickname = packet->buf[3];
             birthday = packet->buf[4];
             //cout << account << endl;
             //cout << password << endl;
-            userObject.CreateUser(account, password, nickname, birthday);
+            userObject.CreateUser(account, password, nickname, birthday, string(buf), string(buf));
             check = userObject.UserLogin(account, password, IP, port);
             if(check != NULL){
                 packet = NewPacket(0);

@@ -16,6 +16,8 @@ struct Artical{
     string author;
     string artical;
     string time;
+    string IP;
+    int port;
     Message* first_message;
     Message* last_message;
     Artical* next;
@@ -30,6 +32,8 @@ struct User{
     string birthday;
     string IP;
     int port;
+    string reg_time;
+    string last_time;
     int islogin;
     User* next;
     User* previous;
@@ -66,7 +70,7 @@ private:
     User* last_user;
 protected:
     Artical* CreateArtical(User* user, string artical);
-    Artical* CreateArtical(User* user, string artical, string time);
+    Artical* CreateArtical(User* user, string artical, string IP, int port, string time);
     Message* CreateMessage(Artical* artical, string who, string message);
     Message* CreateMessage(Artical* artical, string who, string message, string time);
     Artical* FindArticalFromIndex(string account, int artical_index);
@@ -78,6 +82,8 @@ public:
     void Init();
     void SaveUserList();
     User* CreateUser(string account, string password, string nickname, string birthday);
+
+    User* CreateUser(string account, string password, string nickname, string birthday, string reg_time, string log_time);
     User* FindUser(string whatkind, string info);
     User* UserLogin(string account, string password, string IP, int port);
     User* UserLogout(string IP, int port);
