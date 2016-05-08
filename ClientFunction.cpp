@@ -53,8 +53,8 @@ void ConnectProcess(int sockfd, struct sockaddr *server_addr, socklen_t servlen)
                 */
                 command = CommandChoose(sendData);
                 ProcessCommand(command, sendData, sockfd, server_addr, servlen);
+                ShowCommand();
             }
-            ShowCommand();
         }
     }
 }
@@ -64,6 +64,7 @@ int Login(int sockfd, struct sockaddr *server_addr, socklen_t servlen){
     string create_mode = "CREATEACCOUNT";
     string recvData;
     string command;
+    Packet *packet = NewPacket(0);
     cout << "$ Create?" << endl;
     cout << "$ Login?" << endl;
     cin >> command;
@@ -74,29 +75,29 @@ int Login(int sockfd, struct sockaddr *server_addr, socklen_t servlen){
     cout << "Password: ";
     cin >> user_password;
     if(command == "Login")
-        sendto(sockfd, login_mode.c_str(), strlen(login_mode.c_str())+1, 0, server_addr, servlen);
+        PacketPush(packet, login_mode);
     else if(command == "Create"){
         cout << "Nickname: ";
         cin >> user_nickname;
         cout << "Birthday(yy/mm/dd): ";
         cin >> user_birthday;
-        sendto(sockfd, create_mode.c_str(), strlen(create_mode.c_str())+1, 0, server_addr, servlen);
+        PacketPush(packet, create_mode);
     }
     else
         return 0;
-    sendto(sockfd, user_account.c_str(), strlen(user_account.c_str())+1, 0, server_addr, servlen);
-    sendto(sockfd, user_password.c_str(), strlen(user_password.c_str())+1, 0, server_addr, servlen);
+    PacketPush(packet, user_account);
+    PacketPush(packet, user_password);
     if(command == "Create"){
-        sendto(sockfd, user_nickname.c_str(), strlen(user_nickname.c_str())+1, 0, server_addr, servlen);
-        sendto(sockfd, user_birthday.c_str(), strlen(user_birthday.c_str())+1, 0, server_addr, servlen);
+        PacketPush(packet, user_nickname);
+        PacketPush(packet, user_birthday);
     }
-    recvfrom(sockfd, recvline, MAXLINE, 0, server_addr, &servlen);
-    recvData = recvline;
-    if(recvData == "success"){
-        recvfrom(sockfd, recvline, MAXLINE, 0, server_addr, &servlen);
-        user_nickname = recvline;
-        recvfrom(sockfd, recvline, MAXLINE, 0, server_addr, &servlen);
-        user_birthday = recvline;
+    sendto(sockfd, (char*)packet, sizeof(Packet), 0,server_addr, servlen);
+    delete packet;
+    recvfrom(sockfd, recvline, MAXLINE, 0,server_addr, &servlen);
+    packet = (Packet*)recvline;
+    if(string("success") == packet->buf[0]){
+        user_nickname = packet->buf[1];
+        user_birthday = packet->buf[2];
         cout << "Login Success " << user_nickname  << "!!" << endl;
         return 1;
     }
@@ -110,6 +111,7 @@ void ShowCommand(){
     cout << "$ ShowMyInfo" << endl;
     cout << "$ ShowMyArtical" << endl;
     cout << "$ NewArtical" << endl;
+    cout << "$ ModifyMyArtical" << endl;
     cout << "$ DeleteMyArtical" << endl;
     cout << "$ NewMessage" << endl;
     cout << "$ DeleteMyMessage" << endl;
@@ -129,6 +131,7 @@ string GetCommandString(string input){
     else if(input == "NewMessage") return string("NEWMESSAGE");
     else if(input == "DeleteMyArtical") return string("DELETEUSERARTICAL");
     else if(input == "DeleteMyMessage") return string("DELETEUSERMESSAGE");
+    else if(input == "ModifyMyArtical") return string("MODIFYARTICAL");
     else    return string("UNKNOWN");
 }
 void ProcessCommand(int command, string sendData, int sockfd, struct sockaddr *server_addr, socklen_t servlen){
@@ -142,13 +145,13 @@ void ProcessCommand(int command, string sendData, int sockfd, struct sockaddr *s
 
     switch(command){
         case TEST:
-            sendto(sockfd, sendData.c_str(), strlen(sendData.c_str())+1, 0, server_addr, servlen);
-            packet = NewPacket();
+            sendto(sockfd, (char*)sendData.c_str(), strlen(sendData.c_str())+1, 0,server_addr, servlen);
+            packet = NewPacket(0);
             PacketPush(packet, user_account);
             PacketPush(packet, user_password);
             PacketPush(packet, user_nickname);
             PacketPush(packet, user_birthday);
-            sendto(sockfd, (char*)packet, sizeof(Packet), 0, server_addr, servlen);
+            sendto(sockfd, (char*)packet, sizeof(Packet), 0,server_addr, servlen);
             delete packet;
             break;
         case SHOWMYINFO:
@@ -160,10 +163,14 @@ void ProcessCommand(int command, string sendData, int sockfd, struct sockaddr *s
             cout << "}" << endl;
             break;
         case DELETEMYACCOUNT:
-            sendto(sockfd, sendData.c_str(), strlen(sendData.c_str())+1, 0, server_addr, servlen);
-            recvfrom(sockfd, recvline, MAXLINE, 0, server_addr, &servlen);
-            recvData = recvline;
-            if(recvData == success){
+            //sendto(sockfd, sendData.c_str(), strlen(sendData.c_str())+1, 0, server_addr, servlen);
+            packet = NewPacket(0);
+            PacketPush(packet, sendData);
+            sendto(sockfd, (char*)packet, sizeof(Packet), 0,server_addr, servlen);
+            delete packet;
+            recvfrom(sockfd, recvline, MAXLINE, 0,server_addr, &servlen);
+            packet = (Packet*)recvline;
+            if(string(packet->buf[0]) == success){
                 cout << "Account Delete Success!!" << endl;
             }
             else{
@@ -172,78 +179,115 @@ void ProcessCommand(int command, string sendData, int sockfd, struct sockaddr *s
             exit(0);
             break;
         case LOGOUT:
-            sendto(sockfd, sendData.c_str(), strlen(sendData.c_str())+1, 0, server_addr, servlen);
-            recvfrom(sockfd, recvline, MAXLINE, 0, server_addr, &servlen);
-            recvData = recvline;
-            if(recvData == success) cout << "Account Logout Success!!" << endl;
+            packet = NewPacket(0);
+            PacketPush(packet, sendData);
+            sendto(sockfd, (char*)packet, sizeof(Packet), 0,server_addr, servlen);
+            delete packet;
+            recvfrom(sockfd, recvline, MAXLINE, 0,server_addr, &servlen);
+            packet = (Packet*)recvline;
+            if(string(packet->buf[0]) == success) cout << "Account Logout Success!!" << endl;
             else    cout << "Account Logout Fail!!" << endl;
             exit(0);
             break;
         case MODIFYACCOUNT:
-            sendto(sockfd, sendData.c_str(), strlen(sendData.c_str())+1, 0, server_addr, servlen);
+            packet = NewPacket(0);
+            PacketPush(packet, sendData);
             cout << "New Password: ";
             cin >> user_password;
             cout << "New Nickname: ";
             cin >> user_nickname;
             cout << "New Birthday: ";
             cin >> user_birthday;
-            sendto(sockfd, user_password.c_str(), strlen(user_password.c_str())+1, 0, server_addr, servlen);
-            sendto(sockfd, user_nickname.c_str(), strlen(user_nickname.c_str())+1, 0, server_addr, servlen);
-            sendto(sockfd, user_birthday.c_str(), strlen(user_birthday.c_str())+1, 0, server_addr, servlen);
-            recvfrom(sockfd, recvline, MAXLINE, 0, server_addr, &servlen);
-            recvData = recvline;
-            if(recvData == success) cout << "Account Modify Success!!" << endl;
+            PacketPush(packet, user_password);
+            PacketPush(packet, user_nickname);
+            PacketPush(packet, user_birthday);
+            sendto(sockfd, (char*)packet, sizeof(Packet), 0,server_addr, servlen);
+            delete packet;
+            recvfrom(sockfd, recvline, MAXLINE, 0,server_addr, &servlen);
+            packet = (Packet*)recvline;
+            if(string(packet->buf[0]) == success) cout << "Account Modify Success!!" << endl;
             else    cout << "Account Modify Fail!!" << endl;
             break;
         case NEWARTICAL:
-            sendto(sockfd, sendData.c_str(), strlen(sendData.c_str())+1, 0, server_addr, servlen);
+            packet = NewPacket(0);
+            PacketPush(packet, sendData);
             cout << "New Artical:" << endl;
             fgets(sendline, MAXLINE, stdin);
             sendline[strlen(sendline)-1] = '\0';
-            sendto(sockfd, sendline, strlen(sendline)+1, 0, server_addr, servlen);
-            recvfrom(sockfd, recvline, MAXLINE, 0, server_addr, &servlen);
-            recvData = recvline;
-            if(recvData == success) cout << "Create Artical Success!!" << endl;
+            PacketPushArtical(packet, string(sendline));
+            sendto(sockfd, (char*)packet, sizeof(Packet), 0,server_addr, servlen);
+            delete packet;
+            recvfrom(sockfd, recvline, MAXLINE, 0,server_addr, &servlen);
+            packet = (Packet*)recvline;
+            if(string(packet->buf[0]) == success) cout << "Create Artical Success!!" << endl;
             else    cout << "Create Artical Fail!!" << endl;
             break;
         case SHOWUSERARTICAL:
-            sendto(sockfd, sendData.c_str(), strlen(sendData.c_str())+1, 0, server_addr, servlen);
-            recvfrom(sockfd, recvline, MAXLINE, 0, server_addr, &servlen);
-            recvData = recvline;
-            if(recvData == success){
-                recvfrom(sockfd, recvline, MAXLINE, 0, server_addr, &servlen);
-                recvData = recvline;
-                cout << recvData;
+            packet = NewPacket(0);
+            PacketPush(packet, sendData);
+            sendto(sockfd, (char*)packet, sizeof(Packet), 0,server_addr, servlen);
+            delete packet;
+            recvfrom(sockfd, recvline, MAXLINE, 0,server_addr, &servlen);
+            packet = (Packet*)recvline;
+            if(string(packet->buf[0]) == success){
+                cout << packet->artical;
             }
             else
                 cout << "Show My Artical Fail!!" << endl;
             break;
         case NEWMESSAGE:
-            sendto(sockfd, sendData.c_str(), strlen(sendData.c_str())+1, 0, server_addr, servlen);
+            packet = NewPacket(0);
+            PacketPush(packet, sendData);
             cout << "The Artical Author: ";
             getline(cin, buf);
-            sendto(sockfd, buf.c_str(), strlen(buf.c_str())+1, 0, server_addr, servlen);
+            PacketPush(packet, buf);
             cout << "The Artical Index: ";
             getline(cin, buf);
-            sendto(sockfd, buf.c_str(), strlen(buf.c_str())+1, 0, server_addr, servlen);
+            PacketPush(packet, buf);
             cout << "The Message: " << endl;
             getline(cin, buf);
-            sendto(sockfd, buf.c_str(), strlen(buf.c_str())+1, 0, server_addr, servlen);
-            recvfrom(sockfd, recvline, MAXLINE, 0, server_addr, &servlen);
-            recvData = recvline;
-            if(recvData == success) cout << "Create Message Success!!" << endl;
+            PacketPushArtical(packet, buf);
+            sendto(sockfd, (char*)packet, sizeof(Packet), 0,server_addr, servlen);
+            delete packet;
+            recvfrom(sockfd, recvline, MAXLINE, 0,server_addr, &servlen);
+            packet = (Packet*)recvline;
+            if(string(packet->buf[0]) == success) cout << "Create Message Success!!" << endl;
             else    cout << "Create Message Fail!!" << endl;
             break;
         case DELETEUSERARTICAL:
-            sendto(sockfd, sendData.c_str(), strlen(sendData.c_str())+1, 0, server_addr, servlen);
+            //sendto(sockfd, sendData.c_str(), strlen(sendData.c_str())+1, 0, server_addr, servlen);
+            packet = NewPacket(0);
+            PacketPush(packet, sendData);
             cout << "The Artical Index: ";
             cin >> buf;
-            sendto(sockfd, buf.c_str(), strlen(buf.c_str())+1, 0, server_addr, servlen);
-            recvfrom(sockfd, recvline, MAXLINE, 0, server_addr, &servlen);
-            recvData = recvline;
-            if(recvData == success) cout << "Delete Artical Success" << endl;
+            PacketPush(packet, buf);
+            sendto(sockfd, (char*)packet, sizeof(Packet), 0, server_addr, servlen);
+            delete packet;
+            recvfrom(sockfd, recvline, MAXLINE, 0,server_addr, &servlen);
+            packet = (Packet*)recvline;
+            if(string(packet->buf[0]) == success) cout << "Delete Artical Success" << endl;
             else cout << "Delete Artical Fail" << endl;
             break;
+        case DELETEUSERMESSAGE:
+            packet = NewPacket(0);
+            PacketPush(packet, sendData);
+            cout << "The Artical Author:" << endl;
+            cin >> buf;
+            PacketPush(packet, buf);
+            cout << "The Artical Index:" << endl;
+            cin >> buf;
+            PacketPush(packet, buf);
+            cout << "The Message Index:" << endl;
+            cin >> buf;
+            PacketPush(packet, buf);
+            sendto(sockfd, (char*)packet, sizeof(Packet), 0, server_addr, servlen);
+            delete packet;
+            recvfrom(sockfd, recvline, MAXLINE, 0,server_addr, &servlen);
+            packet = (Packet*)recvline;
+            if(string(packet->buf[0]) == success) cout << "Delete Artical Success" << endl;
+            else cout << "Delete Artical Fail" << endl;
+            break;
+        case: MODIFYARTICAL
         default:
             cout << "Unknown command" << endl;
     }

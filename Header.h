@@ -38,11 +38,14 @@
 #define NEWMESSAGE 9
 #define DELETEUSERARTICAL 10
 #define DELETEUSERMESSAGE 11
+#define MODIFYARTICAL 12
 
 using namespace std;
 typedef struct PACKET{
+    int index;
     int count;
-    char buf[5][150];
+    char buf[5][20];
+    char artical[1000];
     //vector<string> data;
     /*
     char buf_0[50];
@@ -51,8 +54,11 @@ typedef struct PACKET{
     char buf_3[50];
     */
 }Packet;
+Packet* NewPacket(int index);
+Packet* PacketPush(Packet* packet, string data);
+Packet* PacketPushArtical(Packet* packet, string data);
 
 int CommandChoose(string command);
-Packet* NewPacket();
-Packet* PacketPush(Packet* packet, string data);
+int SafeRecvfrom(int sockfd, char *data, int len, struct sockaddr *from, socklen_t *fromlen);
+int SafeSendto(int sockfd, char *data, int len, const struct sockaddr *to, socklen_t tolen);
 #endif

@@ -25,32 +25,70 @@ int CommandChoose(string command){
         return DELETEUSERARTICAL;
     else if(command == "DELETEUSERMESSAGE")
         return DELETEUSERMESSAGE;
+    else if(command == "MODIFYARTICAL")
+        return MODIFYARTICAL;
     else
         return DEFAULT;
 }
-Packet* NewPacket(){
+
+int SafeRecvfrom(int sockfd, char *data, int len, struct sockaddr *from, socklen_t *fromlen){
+    int nbytes;
+    char ack[4] = "ack";
+
+    nbytes = recvfrom(sockfd, data, len, 0, from, fromlen);
+    //cout << data << endl;
+    //
+    usleep(100000);
+    sendto(sockfd, data, sizeof(Packet), 0, from, *fromlen);
+    //sleep(1);
+    return nbytes;
+}
+int SafeSendto(int sockfd, char *data, int len, const struct sockaddr *to, socklen_t tolen){
+    int nready;
+    int nbytes;
+    char line[MAXLINE];
+    char ack[4] = "ack";
+    struct timeval timeout;
+    struct sockaddr from;
+    socklen_t fromlen;
+    fd_set allset;
+    Packet *buf1,*buf2;
+
+    timeout.tv_sec = 1;
+    //timeout.tv_usec = 50000;
+    FD_ZERO(&allset);
+    FD_SET(sockfd, &allset);
+
+    while(true){
+        //cout << "start\n";
+        nready = select(sockfd + 1, &allset, NULL, NULL, &timeout);
+        //cout << "end\n";
+        if(!FD_ISSET(sockfd, &allset)){
+            sendto(sockfd, data, len, 0, to, tolen);
+            //cout << "HH" << endl;
+        }
+        else{
+            nbytes = recvfrom(sockfd, line, MAXLINE, 0, &from, &fromlen);
+            buf1 = (Packet*)line;
+            buf2 = (Packet*)data;
+            if(buf1->index == buf2->index)
+                return len;
+        }
+        FD_SET(sockfd, &allset);
+    }
+}
+Packet* NewPacket(int index){
     Packet* tmp = new Packet;
     tmp->count = 0;
+    tmp->index = index;
     return tmp;
 }
 Packet* PacketPush(Packet* packet, string data){
-    /*
-    switch(packet->count){
-        case 0:
-            strcpy(packet->buf_0, data.c_str());
-            break;
-        case 1:
-            strcpy(packet->buf_1, data.c_str());
-            break;
-        case 2:
-            strcpy(packet->buf_2, data.c_str());
-            break;
-        case 3:
-            strcpy(packet->buf_3, data.c_str());
-    }
-    */
-    //packet->data.push_back(data);
     strcpy(packet->buf[packet->count], data.c_str());
     packet->count++;
+    return packet;
+}
+Packet* PacketPushArtical(Packet* packet, string data){
+    strcpy(packet->artical, data.c_str());
     return packet;
 }
