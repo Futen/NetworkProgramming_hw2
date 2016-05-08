@@ -114,6 +114,7 @@ void ShowCommand(){
     cout << "$ ModifyMyArtical" << endl;
     cout << "$ DeleteMyArtical" << endl;
     cout << "$ NewMessage" << endl;
+    cout << "$ ModifyMyMessage" << endl;
     cout << "$ DeleteMyMessage" << endl;
     cout << "$ DeleteMyAccount" << endl;
     cout << "$ ModifyMyAccount" << endl;
@@ -132,6 +133,7 @@ string GetCommandString(string input){
     else if(input == "DeleteMyArtical") return string("DELETEUSERARTICAL");
     else if(input == "DeleteMyMessage") return string("DELETEUSERMESSAGE");
     else if(input == "ModifyMyArtical") return string("MODIFYARTICAL");
+    else if(input == "ModifyMyMessage") return string("MODIFYMESSAGE");
     else    return string("UNKNOWN");
 }
 void ProcessCommand(int command, string sendData, int sockfd, struct sockaddr *server_addr, socklen_t servlen){
@@ -287,7 +289,44 @@ void ProcessCommand(int command, string sendData, int sockfd, struct sockaddr *s
             if(string(packet->buf[0]) == success) cout << "Delete Artical Success" << endl;
             else cout << "Delete Artical Fail" << endl;
             break;
-        case: MODIFYARTICAL
+        case MODIFYARTICAL:
+            packet = NewPacket(0);
+            PacketPush(packet, sendData);
+            cout << "The Artical Index:" << endl;
+            getline(cin, buf);
+            PacketPush(packet, buf);
+            cout << "The New Artical:" << endl;
+            getline(cin, buf);
+            PacketPushArtical(packet, buf);
+            sendto(sockfd, (char*)packet, sizeof(Packet), 0, server_addr, servlen);
+            delete packet;
+            recvfrom(sockfd, recvline, MAXLINE, 0,server_addr, &servlen);
+            packet = (Packet*)recvline;
+            if(string(packet->buf[0]) == success) cout << "Modify Artical Success" << endl;
+            else cout << "Modify Artical Fail" << endl;
+            break;
+        case MODIFYMESSAGE:
+            packet = NewPacket(0);
+            PacketPush(packet, sendData);
+            cout << "The Artical Author:" << endl;
+            getline(cin, buf);
+            PacketPush(packet, buf);
+            cout << "The Artical Index:" << endl;
+            getline(cin, buf);
+            PacketPush(packet, buf);
+            cout << "The Message Index:" << endl;
+            getline(cin, buf);
+            PacketPush(packet, buf);
+            cout << "The New Message:" << endl;
+            getline(cin, buf);
+            PacketPushArtical(packet, buf);
+            sendto(sockfd, (char*)packet, sizeof(Packet), 0, server_addr, servlen);
+            delete packet;
+            recvfrom(sockfd, recvline, MAXLINE, 0,server_addr, &servlen);
+            packet = (Packet*)recvline;
+            if(string(packet->buf[0]) == success) cout << "Modify Message Success" << endl;
+            else cout << "Modify Message Fail" << endl;
+            break;
         default:
             cout << "Unknown command" << endl;
     }

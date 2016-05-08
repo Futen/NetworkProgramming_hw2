@@ -27,6 +27,8 @@ int CommandChoose(string command){
         return DELETEUSERMESSAGE;
     else if(command == "MODIFYARTICAL")
         return MODIFYARTICAL;
+    else if(command == "MODIFYMESSAGE")
+        return MODIFYMESSAGE;
     else
         return DEFAULT;
 }

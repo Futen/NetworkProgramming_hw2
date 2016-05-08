@@ -39,6 +39,7 @@
 #define DELETEUSERARTICAL 10
 #define DELETEUSERMESSAGE 11
 #define MODIFYARTICAL 12
+#define MODIFYMESSAGE 13
 
 using namespace std;
 typedef struct PACKET{

@@ -281,6 +281,38 @@ void CommandProcess(int command, char* line, int sockfd, struct sockaddr *pcliad
             }
             delete packet_tmp;
             break;
+        case MODIFYARTICAL:
+            artical_index = atoi(packet->buf[1]);
+            recvData = packet->artical;
+            packet_tmp = NewPacket(0);
+            if(userObject.ModifyArtical(IP, port, artical_index, recvData) != NULL){
+                userObject.SaveArtical();
+                PacketPush(packet_tmp, string(success));
+                sendto(sockfd, (char*)packet_tmp, sizeof(Packet), 0, pcliaddr, clilen);
+            }
+            else{
+                PacketPush(packet_tmp, string(fail));
+                sendto(sockfd, (char*)packet_tmp, sizeof(Packet), 0, pcliaddr, clilen);
+            }
+            delete packet_tmp;
+            break;
+        case MODIFYMESSAGE:
+            account = packet->buf[1];
+            artical_index = atoi(packet->buf[2]);
+            message_index = atoi(packet->buf[3]);
+            recvData = packet->artical;
+            packet_tmp = NewPacket(0);
+            if(userObject.ModifyMessage(IP, port, account, artical_index, message_index, recvData) != NULL){
+                userObject.SaveArtical();
+                PacketPush(packet_tmp, string(success));
+                sendto(sockfd, (char*)packet_tmp, sizeof(Packet), 0, pcliaddr, clilen);
+            }
+            else{
+                PacketPush(packet_tmp, string(fail));
+                sendto(sockfd, (char*)packet_tmp, sizeof(Packet), 0, pcliaddr, clilen);
+            }
+            delete packet_tmp;
+            break;
     }
 }
 

@@ -5,14 +5,17 @@ struct Message{
     int index;
     string who;
     string message;
+    string time;
     Message* previous;
     Message* next;
 };
 struct Artical{
     int index;
     int message_count;
+    int like_count;
     string author;
     string artical;
+    string time;
     Message* first_message;
     Message* last_message;
     Artical* next;
@@ -63,7 +66,9 @@ private:
     User* last_user;
 protected:
     Artical* CreateArtical(User* user, string artical);
+    Artical* CreateArtical(User* user, string artical, string time);
     Message* CreateMessage(Artical* artical, string who, string message);
+    Message* CreateMessage(Artical* artical, string who, string message, string time);
     Artical* FindArticalFromIndex(string account, int artical_index);
     Message* FindMessageFromIndex(string account, int artical_index, int message_index);
     User* FindUserFromIPAndPort(string IP, int port);
@@ -88,7 +93,7 @@ public:
     bool DeleteUserMessage(string IP, int port, string author_account, int artical_index, int message_index);
     string ShowUserArtical(string IP, int port);
     Artical* ModifyArtical(string IP, int port, int artical_index, string artical);
-    Message* ModifyMessage(string IP, int port, int artical_index, int message_index, string message);
+    Message* ModifyMessage(string IP, int port, string artical_author , int artical_index, int message_index, string message);
     /***************/
 };
 #endif

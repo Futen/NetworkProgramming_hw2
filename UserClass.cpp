@@ -157,6 +157,8 @@ void UserClass::ArticalInit(){
             string artical;
             string message;
             string who;
+            string artical_time;
+            string message_time;
             User* user_tmp;
             Artical* artical_tmp;
             Message* message_tmp;
@@ -169,8 +171,13 @@ void UserClass::ArticalInit(){
                     getline(file, line);
                     account = line;
                     user_tmp = this->FindUser(string("account"), account);
-                    artical_tmp = this->CreateArtical(user_tmp, artical);
-                }   
+                    //artical_tmp = this->CreateArtical(user_tmp, artical);
+                }
+                else if(line == "Artical_Time:"){
+                    getline(file, line);
+                    artical_time = line;
+                    artical_tmp = this->CreateArtical(user_tmp, artical, artical_time);
+                }
                 else if(line == "A message:"){
                     getline(file, line);
                     message = line;
@@ -178,19 +185,39 @@ void UserClass::ArticalInit(){
                 else if(line == "Who:"){
                     getline(file, line);
                     who = line;
-                    message_tmp = this->CreateMessage(artical_tmp, who, message);
+                    //message_tmp = this->CreateMessage(artical_tmp, who, message);
+                }
+                else if(line == "Message_Time:"){
+                    getline(file, line);
+                    message_time = line;
+                    message_tmp = this->CreateMessage(artical_tmp, who, message, message_time);
                 }
             }
         }
     }
     closedir(dp);
 }
+Message* UserClass::CreateMessage(Artical *artical, string who, string message, string time){
+    Message* tmp = this->CreateMessage(artical, who, message);
+    tmp->time = time;
+    return tmp;
+}
+Artical* UserClass::CreateArtical(User *user, string artical, string time){
+    Artical* tmp = this->CreateArtical(user, artical);
+    tmp->time = time;
+}
 Artical* UserClass::CreateArtical(User *user, string artical){
+    time_t ticks;
+    char buf[MAXLINE];
+    ticks = time(NULL);
+    snprintf(buf, sizeof(buf), "%.24s\r\n", ctime(&ticks));
     Artical* tmp = new Artical;
     tmp->author = user->account;
     tmp->artical = artical;
     tmp->index = user->artical_index;
     tmp->message_count = 0;
+    tmp->like_count = 0;
+    tmp->time = buf;
     user->artical_index++;
     tmp->previous = NULL;
     tmp->next = NULL;
@@ -208,10 +235,15 @@ Artical* UserClass::CreateArtical(User *user, string artical){
     return tmp;
 }
 Message* UserClass::CreateMessage(Artical* artical, string who, string message){
+    time_t ticks;
+    char buf[MAXLINE];
+    ticks = time(NULL);
+    snprintf(buf, sizeof(buf), "%.24s\r\n", ctime(&ticks));
     Message* tmp = new Message;
     tmp->who = who;
     tmp->message = message;
     tmp->index = artical->message_count;
+    tmp->time = buf;
     artical->message_count++;
     tmp->previous = NULL;
     tmp->next = NULL;
@@ -281,11 +313,15 @@ void UserClass::SaveArtical(){
             file << (art_tmp->artical + "\n");
             file << "Author:\n";
             file << (art_tmp->author + "\n");
+            file << "Artical_Time:\n";
+            file << (art_tmp->time + "\n");
             for(mess_tmp = art_tmp->first_message; mess_tmp != NULL; mess_tmp = mess_tmp->next){
                 file << "A message:\n";
                 file << (mess_tmp->message + "\n");
                 file << "Who:\n";
                 file << (mess_tmp->who + "\n");
+                file << "Message_Time:\n";
+                file << (mess_tmp->time+"\n");
             }
             file.close();
         }
@@ -302,10 +338,11 @@ Artical* UserClass::ModifyArtical(string IP, int port, int artical_index, string
     }
     return NULL;
 }
-Message* UserClass::ModifyMessage(string IP, int port, int artical_index, int message_index, string message){
+Message* UserClass::ModifyMessage(string IP, int port, string artical_author, int artical_index, int message_index, string message){
     User *user = this->FindUserFromIPAndPort(IP, port);
-    if(user != NULL){
-        Message* tmp = this->FindMessageFromIndex(user->account, artical_index, message_index);
+    User *author = this->FindUser(string("account"), artical_author);
+    if(user != NULL && author != NULL){
+        Message* tmp = this->FindMessageFromIndex(author->account, artical_index, message_index);
         if(tmp != NULL){
             tmp->message = message;
             return tmp;
@@ -337,12 +374,12 @@ string UserClass::ShowUserArtical(string IP, int port){
     Artical* artical_tmp;
     Message* message_tmp;
     for(Artical* artical_tmp=user->first_artical; artical_tmp!=NULL; artical_tmp=artical_tmp->next){
-        sprintf(line, "Artical ID: %d\tAuthor: %s\n", artical_tmp->index, artical_tmp->author.c_str());
+        sprintf(line, "Artical ID: %d\tAuthor: %s\tTime: %s\n", artical_tmp->index, artical_tmp->author.c_str(), artical_tmp->time.c_str());
         output += string(line);
         sprintf(line, "\tBegin\n\t\t%s\n\tEnd\n", artical_tmp->artical.c_str());
         output += string(line);
         for(Message* message_tmp = artical_tmp->first_message; message_tmp != NULL; message_tmp = message_tmp->next){
-            sprintf(line, "\tMessage ID: %d\twho: %s\n", message_tmp->index, message_tmp->who.c_str());
+            sprintf(line, "\tMessage ID: %d\twho: %s\tTime: %s\n", message_tmp->index, message_tmp->who.c_str(), message_tmp->time.c_str());
             output += string(line);
             sprintf(line, "\t\tBegin\n\t\t\t%s\n\t\tEnd\n", message_tmp->message.c_str());
             output += string(line);
@@ -414,9 +451,6 @@ bool UserClass::DeleteUserMessage(string IP, int port, string author_account, in
     }
     return false;
 }
-
-
-
 
 
 
