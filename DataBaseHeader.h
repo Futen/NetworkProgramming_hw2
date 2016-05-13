@@ -39,6 +39,8 @@ struct User{
     string reg_time;
     string last_time;
     int islogin;
+    vector<string> friend_lst;
+    vector<string> friend_invite;
     User* next;
     User* previous;
     Artical* first_artical;
@@ -105,5 +107,13 @@ public:
     Artical* ModifyArtical(string IP, int port, int artical_index, string artical);
     Message* ModifyMessage(string IP, int port, string artical_author , int artical_index, int message_index, string message);
     /***************/
+    void FriendInit();
+    void SaveFriendLst();
+    User* AddFriend(User* user, string friend_name);
+    User* AddFriend(string user_account, string friend_name);
+    User* AddInvite(string from, string to);
+    bool RemoveFriend(string user_account, string friend_name);
+    bool RemoveInvite(string user_account, string who);
+    bool InviteAggree(string user_account, string friend_account);
 };
 #endif

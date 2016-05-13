@@ -20,6 +20,7 @@ void UserClass::Init(){
         }
         file.close();
     }
+    this->FriendInit();
     this->ArticalInit();
 }
 void UserClass::SaveUserList(){
