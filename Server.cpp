@@ -56,7 +56,7 @@ void WaitForData(int sockfd, struct sockaddr *pcliaddr, socklen_t clilen){
             port = ((struct sockaddr_in*)pcliaddr)->sin_port;
             if(nbytes > 0){
                 data = string(packet->buf[0]);
-                cout << data << endl;
+                //cout << data << endl;
                 //sendto(sockfd, line, strlen(line)+1, 0, pcliaddr, clilen);
                 command = CommandChoose(data);
                 CommandProcess(command, line, sockfd, pcliaddr, clilen, IP, port);
@@ -99,6 +99,7 @@ void CommandProcess(int command, char* line, int sockfd, struct sockaddr *pcliad
             //cout << password << endl;
             check = userObject.UserLogin(account, password, IP, port);
             if(check != NULL){
+                userObject.SaveUserList();
                 packet_tmp = NewPacket(0);
                 PacketPush(packet_tmp, string(success));
                 PacketPush(packet_tmp, check->nickname);
@@ -125,7 +126,8 @@ void CommandProcess(int command, char* line, int sockfd, struct sockaddr *pcliad
             time_t ticks;
             char buf[MAXLINE];
             ticks = time(NULL);
-            snprintf(buf, sizeof(buf), "%.24s", ctime(&ticks));
+            sprintf(buf, "%d", (int)ticks);
+            //snprintf(buf, sizeof(buf), "%.24s", ctime(&ticks));
             account = packet->buf[1];
             password = packet->buf[2];
             nickname = packet->buf[3];
@@ -173,6 +175,7 @@ void CommandProcess(int command, char* line, int sockfd, struct sockaddr *pcliad
             break;
         case LOGOUT:
             if((check = userObject.UserLogout(IP, port)) != NULL){
+                //userObject.SaveUserList();
                 packet_tmp = NewPacket(0);
                 PacketPush(packet_tmp, success);
                 sendto(sockfd, (char*)packet_tmp, sizeof(Packet), 0,pcliaddr, clilen);

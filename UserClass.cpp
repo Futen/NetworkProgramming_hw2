@@ -23,16 +23,20 @@ void UserClass::Init(){
     this->ArticalInit();
 }
 void UserClass::SaveUserList(){
+    char reg_buf[100];
+    char last_buf[100];
     ofstream file;
     file.open("USER_LST.txt", fstream::out);
     if(file.is_open()){
         for(User *tmp=first_user; tmp!=NULL; tmp=tmp->next){
+            sprintf(reg_buf, "%ld", (long int)tmp->reg_time_t);
+            sprintf(last_buf, "%ld", (long int)tmp->last_time_t);
             file << (tmp->account + "\n");
             file << (tmp->password + "\n");
             file << (tmp->nickname + "\n");
             file << (tmp->birthday + "\n");
-            file << (tmp->reg_time + "\n");
-            file << (tmp->last_time + "\n");
+            file << (string(reg_buf) + "\n");
+            file << (string(last_buf) + "\n");
         }
         file.close();
     }
@@ -54,8 +58,10 @@ User* UserClass::CreateUser(string account, string password, string nickname, st
     user_index++;
     tmp->port = 0;
     tmp->IP = "";
+    tmp->last_time_t = ticks;
+    tmp->reg_time_t = ticks;
     tmp->reg_time = buf;
-    tmp->last_time = "";
+    tmp->last_time = buf;
     tmp->previous = NULL;
     tmp->next = NULL;
     tmp->first_artical = NULL;
@@ -112,6 +118,11 @@ User* UserClass::FindUserFromIPAndPort(string IP, int port){
     return NULL;
 }
 User* UserClass::UserLogin(string account, string password, string IP, int port){
+    time_t ticks;
+    char buf[MAXLINE];
+    ticks = time(NULL);
+    //snprintf(buf, sizeof(buf), "%.24s", ctime(&ticks));
+    sprintf(buf, "%ld", (long int)ticks);
     int shutdown = 0;
     User *answer, *tmp;
     for(tmp = first_user, answer = NULL; tmp != NULL && shutdown == 0; tmp = tmp->next){
@@ -125,6 +136,7 @@ User* UserClass::UserLogin(string account, string password, string IP, int port)
         answer->islogin = 1;
         answer->IP = IP;
         answer->port = port;
+        answer->last_time_t = ticks;
         return answer;
     }
     return NULL;
@@ -219,21 +231,33 @@ void UserClass::ArticalInit(){
     closedir(dp);
 }
 User* UserClass::CreateUser(string account, string password, string nickname, string birthday, string reg_time, string log_time){
+    time_t reg_ticks;
+    time_t last_ticks;
+    char reg_buf[100];
+    char last_buf[100];
+    sscanf(reg_time.c_str(), "%ld", (long int*)&reg_ticks);
+    sscanf(log_time.c_str(), "%ld", (long int*)&last_ticks);
+    sprintf(reg_buf, "%s", ctime(&reg_ticks));
+    sprintf(last_buf, "%s", ctime(&last_ticks));
     User* user = this->CreateUser(account, password, nickname, birthday);
-    user->reg_time = reg_time;
-    user->last_time = log_time;
+    user->reg_time_t = reg_ticks;
+    user->last_time_t = last_ticks;
+    user->reg_time = reg_buf;
+    user->last_time = last_buf;
     return user;
 }
 Message* UserClass::CreateMessage(Artical *artical, string who, string message, string time){
     Message* tmp = this->CreateMessage(artical, who, message);
-    tmp->time = time;
+    sscanf(time.c_str(), "%ld", (long int*)&tmp->time_tar);
     return tmp;
 }
 Artical* UserClass::CreateArtical(User* user, string artical, string IP, int port, string time){
+    time_t ticks;
+    sscanf(time.c_str(), "%ld", (long int*)&ticks);
     Artical* tmp = this->CreateArtical(user, artical);
     tmp->IP = IP;
     tmp->port = port;
-    tmp->time = time;
+    tmp->time_tar = ticks;
     return tmp;
 }
 Artical* UserClass::CreateArtical(User *user, string artical){
@@ -248,6 +272,7 @@ Artical* UserClass::CreateArtical(User *user, string artical){
     tmp->message_count = 0;
     tmp->like_count = 0;
     tmp->time = buf;
+    tmp->time_tar = ticks;
     user->artical_index++;
     tmp->previous = NULL;
     tmp->next = NULL;
@@ -274,6 +299,7 @@ Message* UserClass::CreateMessage(Artical* artical, string who, string message){
     tmp->message = message;
     tmp->index = artical->message_count;
     tmp->time = buf;
+    tmp->time_tar = ticks;
     artical->message_count++;
     tmp->previous = NULL;
     tmp->next = NULL;
@@ -327,6 +353,8 @@ Message* UserClass::FindMessageFromIndex(string account, int artical_index, int 
     return NULL;
 }
 void UserClass::SaveArtical(){
+    time_t ticks;
+    char t_buf[MAXLINE];
     system("rm Artical/*");
     int count;
     User* user_tmp;
@@ -344,7 +372,8 @@ void UserClass::SaveArtical(){
             file << "Author:\n";
             file << (art_tmp->author + "\n");
             file << "Artical_Time:\n";
-            file << (art_tmp->time + "\n");
+            sprintf(t_buf, "%ld", (long int) art_tmp->time_tar);
+            file << (string(t_buf) + "\n");
             file << "IP:\n";
             file << (art_tmp->IP + "\n");
             sprintf(buf, "%d", art_tmp->port);
@@ -356,7 +385,8 @@ void UserClass::SaveArtical(){
                 file << "Who:\n";
                 file << (mess_tmp->who + "\n");
                 file << "Message_Time:\n";
-                file << (mess_tmp->time + "\n");
+                sprintf(t_buf, "%ld", (long int) mess_tmp->time_tar);
+                file << (string(t_buf) + "\n");
             }
             file.close();
         }
@@ -389,7 +419,7 @@ Artical* UserClass::NewUserArtical(string IP, int port, string artical){
     time_t ticks;
     char buf[MAXLINE];
     ticks = time(NULL);
-    snprintf(buf, sizeof(buf), "%.24s", ctime(&ticks));
+    sprintf(buf, "%ld", (long int)ticks);
     User* user = this->FindUserFromIPAndPort(IP, port);
     if(user != NULL){
         cout << "Find user\n";
@@ -409,16 +439,19 @@ Message* UserClass::NewUserMessage(string IP, int port, string author_account, i
 string UserClass::ShowUserArtical(string IP, int port){
     string output = "";
     char line[MAXLINE];
+    char buf[100];
     User* user = this->FindUserFromIPAndPort(IP, port);
     Artical* artical_tmp;
     Message* message_tmp;
     for(Artical* artical_tmp=user->first_artical; artical_tmp!=NULL; artical_tmp=artical_tmp->next){
-        sprintf(line, "Artical ID: %d\tAuthor: %s\tTime: %s\tIP: %s\tport: %d\n", artical_tmp->index, artical_tmp->author.c_str(), artical_tmp->time.c_str(), artical_tmp->IP.c_str(), artical_tmp->port);
+        sprintf(buf, "%s", ctime(&artical_tmp->time_tar));
+        sprintf(line, "Artical ID: %d\tAuthor: %s\tTime: %s\tIP: %s\tport: %d\n", artical_tmp->index, artical_tmp->author.c_str(), buf, artical_tmp->IP.c_str(), artical_tmp->port);
         output += string(line);
         sprintf(line, "\tBegin\n\t\t%s\n\tEnd\n", artical_tmp->artical.c_str());
         output += string(line);
         for(Message* message_tmp = artical_tmp->first_message; message_tmp != NULL; message_tmp = message_tmp->next){
-            sprintf(line, "\tMessage ID: %d\twho: %s\tTime: %s\n", message_tmp->index, message_tmp->who.c_str(), message_tmp->time.c_str());
+            sprintf(buf, "%s", ctime(&message_tmp->time_tar));
+            sprintf(line, "\tMessage ID: %d\twho: %s\tTime: %s\n", message_tmp->index, message_tmp->who.c_str(), buf);
             output += string(line);
             sprintf(line, "\t\tBegin\n\t\t\t%s\n\t\tEnd\n", message_tmp->message.c_str());
             output += string(line);

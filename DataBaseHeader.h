@@ -6,6 +6,7 @@ struct Message{
     string who;
     string message;
     string time;
+    time_t time_tar;
     Message* previous;
     Message* next;
 };
@@ -17,6 +18,7 @@ struct Artical{
     string artical;
     string time;
     string IP;
+    time_t time_tar;
     int port;
     Message* first_message;
     Message* last_message;
@@ -32,6 +34,8 @@ struct User{
     string birthday;
     string IP;
     int port;
+    time_t reg_time_t;
+    time_t last_time_t;
     string reg_time;
     string last_time;
     int islogin;
