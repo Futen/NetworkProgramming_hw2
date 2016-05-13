@@ -29,6 +29,20 @@ int CommandChoose(string command){
         return MODIFYARTICAL;
     else if(command == "MODIFYMESSAGE")
         return MODIFYMESSAGE;
+    else if(command == "SHOWFRIEND")
+        return SHOWFRIEND;
+    else if(command == "REMOVEFRIEND")
+        return REMOVEFRIEND;
+    else if(command == "SHOWINVITE")
+        return SHOWINVITE;
+    else if(command == "REMOVEINVITE")
+        return REMOVEINVITE;
+    else if(command == "ACCEPTINVITE")
+        return ACCEPTINVITE;
+    else if(command == "INVITE")
+        return INVITE;
+    else if(command == "SEARCH")
+        return SEARCH;
     else
         return DEFAULT;
 }

@@ -126,3 +126,44 @@ bool UserClass::RemoveInvite(string user_account, string who){
     }
     return false;
 }
+string UserClass::ShowUserFriend(string account){
+    User* user = this->FindUser(string("account"), account);
+    if(user != NULL){
+        string tmp;
+        for(int i = 0; i < user->friend_lst.size(); i++){
+            tmp += user->friend_lst[i] + "\n";
+        }
+        return tmp;
+    }
+    else
+        return string("");
+}
+string UserClass::ShowUserFriend(string IP, int port){
+    User* user = this->FindUserFromIPAndPort(IP, port);
+    return this->ShowUserFriend(user->account);
+}
+string UserClass::ShowUserInvite(string account){
+    User* user = this->FindUser(string("account"), account);
+    if(user != NULL){
+        string tmp;
+        for(int i = 0; i < user->friend_invite.size(); i++){
+            tmp += user->friend_invite[i] + "\n";
+        }
+        return tmp;
+    }
+    else
+        return string("");
+}
+string UserClass::ShowUserInvite(string IP, int port){
+    User* user = this->FindUserFromIPAndPort(IP, port);
+    return this->ShowUserInvite(user->account);
+}
+string UserClass::SearchUser(string info){
+    User* tmp;
+    for(tmp = this->first_user; tmp != NULL; tmp = tmp->next){
+        if(tmp->account == info || tmp->nickname == info){
+            return string("Account: ") + tmp->account + "\n" + string("Nickname: ") + tmp->nickname;
+        }
+    }
+    return string("");
+}

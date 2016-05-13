@@ -40,6 +40,13 @@
 #define DELETEUSERMESSAGE 11
 #define MODIFYARTICAL 12
 #define MODIFYMESSAGE 13
+#define SHOWFRIEND 14
+#define REMOVEFRIEND 15
+#define SHOWINVITE 16
+#define REMOVEINVITE 17
+#define ACCEPTINVITE 18
+#define INVITE 19
+#define SEARCH 20
 
 using namespace std;
 typedef struct PACKET{

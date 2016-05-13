@@ -74,6 +74,7 @@ void CommandProcess(int command, char* line, int sockfd, struct sockaddr *pcliad
     User* check;
     User* who;
     Artical* artical;
+    string sendData;
     string recvData;
     string account;
     string password;
@@ -321,6 +322,89 @@ void CommandProcess(int command, char* line, int sockfd, struct sockaddr *pcliad
             }
             delete packet_tmp;
             break;
+        case SHOWFRIEND:
+            sendData = userObject.ShowUserFriend(IP, port);
+            packet_tmp = NewPacket(0);
+            PacketPushArtical(packet_tmp, sendData);
+            sendto(sockfd, (char*)packet_tmp, sizeof(Packet), 0, pcliaddr, clilen);
+            delete packet_tmp;
+            break;
+        case REMOVEFRIEND:
+            check = userObject.FindUserFromIPAndPort(IP, port);
+            account = packet->buf[1];
+            packet_tmp = NewPacket(0);
+            if(userObject.RemoveFriend(check->account, account)){
+                userObject.RemoveFriend(account, check->account);
+                userObject.SaveFriendLst();
+                PacketPush(packet_tmp, string(success));
+                sendto(sockfd, (char*)packet_tmp, sizeof(Packet), 0, pcliaddr, clilen);
+            }
+            else{
+                PacketPush(packet_tmp, string(fail));
+                sendto(sockfd, (char*)packet_tmp, sizeof(Packet), 0, pcliaddr, clilen);
+            }
+            delete packet_tmp;
+            break;
+        case SHOWINVITE:
+            sendData = userObject.ShowUserInvite(IP, port);
+            packet_tmp = NewPacket(0);
+            PacketPushArtical(packet_tmp, sendData);
+            sendto(sockfd, (char*)packet_tmp, sizeof(Packet), 0, pcliaddr, clilen);
+            delete packet_tmp;
+            break;
+        case REMOVEINVITE:
+            check = userObject.FindUserFromIPAndPort(IP, port);
+            account = packet->buf[1];
+            packet_tmp = NewPacket(0);
+            if(userObject.RemoveInvite(check->account, account)){
+                userObject.SaveFriendLst();
+                PacketPush(packet_tmp, string(success));
+                sendto(sockfd, (char*)packet_tmp, sizeof(Packet), 0, pcliaddr, clilen);
+            }
+            else{
+                PacketPush(packet_tmp, string(fail));
+                sendto(sockfd, (char*)packet_tmp, sizeof(Packet), 0, pcliaddr, clilen);
+            }
+            delete packet_tmp;
+            break;
+        case ACCEPTINVITE:
+            check = userObject.FindUserFromIPAndPort(IP, port);
+            account = packet->buf[1];
+            packet_tmp = NewPacket(0);
+            if(userObject.InviteAggree(check->account, account)){
+                userObject.RemoveInvite(check->account, account);
+                userObject.SaveFriendLst();
+                PacketPush(packet_tmp, string(success));
+                sendto(sockfd, (char*)packet_tmp, sizeof(Packet), 0, pcliaddr, clilen);
+            }
+            else{
+                PacketPush(packet_tmp, string(fail));
+                sendto(sockfd, (char*)packet_tmp, sizeof(Packet), 0, pcliaddr, clilen);
+            }
+            delete packet_tmp;
+            break;
+        case INVITE:
+            check = userObject.FindUserFromIPAndPort(IP, port);
+            account = packet->buf[1];
+            packet_tmp = NewPacket(0);
+            if((who = userObject.AddInvite(check->account, account)) != NULL){
+                userObject.SaveFriendLst();
+                PacketPush(packet_tmp, string(success));
+                sendto(sockfd, (char*)packet_tmp, sizeof(Packet), 0, pcliaddr, clilen);
+            }
+            else{
+                PacketPush(packet_tmp, string(fail));
+                sendto(sockfd, (char*)packet_tmp, sizeof(Packet), 0, pcliaddr, clilen);
+            }
+            delete packet_tmp;
+            break;
+        case SEARCH:
+            account = packet->buf[1];
+            sendData = userObject.SearchUser(account);
+            packet_tmp = NewPacket(0);
+            PacketPushArtical(packet_tmp, sendData);
+            sendto(sockfd, (char*)packet_tmp, sizeof(Packet), 0, pcliaddr, clilen);
+            delete packet_tmp;
     }
 }
 

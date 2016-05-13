@@ -81,7 +81,6 @@ protected:
     Message* CreateMessage(Artical* artical, string who, string message, string time);
     Artical* FindArticalFromIndex(string account, int artical_index);
     Message* FindMessageFromIndex(string account, int artical_index, int message_index);
-    User* FindUserFromIPAndPort(string IP, int port);
     Artical* DeleteArticalMessage(Artical* artical);
 public:
     /****************/
@@ -89,6 +88,7 @@ public:
     void SaveUserList();
     User* CreateUser(string account, string password, string nickname, string birthday);
 
+    User* FindUserFromIPAndPort(string IP, int port);
     User* CreateUser(string account, string password, string nickname, string birthday, string reg_time, string log_time);
     User* FindUser(string whatkind, string info);
     User* UserLogin(string account, string password, string IP, int port);
@@ -112,6 +112,11 @@ public:
     User* AddFriend(User* user, string friend_name);
     User* AddFriend(string user_account, string friend_name);
     User* AddInvite(string from, string to);
+    string SearchUser(string info);
+    string ShowUserFriend(string account);
+    string ShowUserFriend(string IP, int port);
+    string ShowUserInvite(string account);
+    string ShowUserInvite(string IP, int port);
     bool RemoveFriend(string user_account, string friend_name);
     bool RemoveInvite(string user_account, string who);
     bool InviteAggree(string user_account, string friend_account);

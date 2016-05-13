@@ -118,6 +118,13 @@ void ShowCommand(){
     cout << "$ DeleteMyMessage" << endl;
     cout << "$ DeleteMyAccount" << endl;
     cout << "$ ModifyMyAccount" << endl;
+    cout << "$ ShowMyFriend" << endl;
+    cout << "$ RemoveMyFriend" << endl;
+    cout << "$ ShowMyInvite" << endl;
+    cout << "$ InviteWho" << endl;
+    cout << "$ AcceptMyInvite" << endl;
+    cout << "$ RemoveMyInvite" << endl;
+    cout << "$ SearchWho" << endl;
     cout << "$ Logout" << endl;
     cout << "***************" << endl;
 }
@@ -134,6 +141,13 @@ string GetCommandString(string input){
     else if(input == "DeleteMyMessage") return string("DELETEUSERMESSAGE");
     else if(input == "ModifyMyArtical") return string("MODIFYARTICAL");
     else if(input == "ModifyMyMessage") return string("MODIFYMESSAGE");
+    else if(input == "ShowMyFriend") return string("SHOWFRIEND");
+    else if(input == "RemoveMyFriend") return string("REMOVEFRIEND");
+    else if(input == "ShowMyInvite") return string("SHOWINVITE");
+    else if(input == "RemoveMyInvite") return string("REMOVEINVITE");
+    else if(input == "AcceptMyInvite") return string("ACCEPTINVITE");
+    else if(input == "InviteWho") return string("INVITE");
+    else if(input == "SearchWho") return string("SEARCH");
     else    return string("UNKNOWN");
 }
 void ProcessCommand(int command, string sendData, int sockfd, struct sockaddr *server_addr, socklen_t servlen){
@@ -326,6 +340,97 @@ void ProcessCommand(int command, string sendData, int sockfd, struct sockaddr *s
             packet = (Packet*)recvline;
             if(string(packet->buf[0]) == success) cout << "Modify Message Success" << endl;
             else cout << "Modify Message Fail" << endl;
+            break;
+        case SHOWFRIEND:
+            packet = NewPacket(0);
+            PacketPush(packet, sendData);
+            sendto(sockfd, (char*)packet, sizeof(Packet), 0, server_addr, servlen);
+            delete packet;
+            recvfrom(sockfd, recvline, MAXLINE, 0,server_addr, &servlen);
+            packet = (Packet*)recvline;
+            cout << packet->artical;
+            break;
+        case REMOVEFRIEND:
+            packet = NewPacket(0);
+            PacketPush(packet, sendData);
+            cout << "The Account:" << endl;
+            cin >> buf;
+            PacketPush(packet, buf);
+            sendto(sockfd, (char*)packet, sizeof(Packet), 0, server_addr, servlen);
+            delete packet;
+            recvfrom(sockfd, recvline, MAXLINE, 0,server_addr, &servlen);
+            packet = (Packet*)recvline;
+            if(string(packet->buf[0]) == success)
+                cout << "Remove Friend Success!" << endl;
+            else
+                cout << "Remove Friend Fail!" << endl;
+            break;
+        case SHOWINVITE:
+            packet = NewPacket(0);
+            PacketPush(packet, sendData);
+            sendto(sockfd, (char*)packet, sizeof(Packet), 0, server_addr, servlen);
+            delete packet;
+            recvfrom(sockfd, recvline, MAXLINE, 0,server_addr, &servlen);
+            packet = (Packet*)recvline;
+            cout << packet->artical;
+            break;
+        case REMOVEINVITE:
+            packet = NewPacket(0);
+            PacketPush(packet, sendData);
+            cout << "The Account" << endl;
+            cin >> buf;
+            PacketPush(packet, buf);
+            sendto(sockfd, (char*)packet, sizeof(Packet), 0, server_addr, servlen);
+            delete packet;
+            recvfrom(sockfd, recvline, MAXLINE, 0,server_addr, &servlen);
+            packet = (Packet*)recvline;
+            if(string(packet->buf[0]) == success)
+                cout << "Remove Invite Success!" << endl;
+            else
+                cout << "Remove Invite Fail!" << endl;
+            break;
+        case ACCEPTINVITE:
+            packet = NewPacket(0);
+            PacketPush(packet, sendData);
+            cout << "The Account" << endl;
+            cin >> buf;
+            PacketPush(packet, buf);
+            sendto(sockfd, (char*)packet, sizeof(Packet), 0, server_addr, servlen);
+            delete packet;
+            recvfrom(sockfd, recvline, MAXLINE, 0,server_addr, &servlen);
+            packet = (Packet*)recvline;
+            if(string(packet->buf[0]) == success)
+                cout << "Accept Invite Success!" << endl;
+            else
+                cout << "Accept Invite Fail!" << endl;
+            break;
+         case INVITE:
+            packet = NewPacket(0);
+            PacketPush(packet, sendData);
+            cout << "The Account" << endl;
+            cin >> buf;
+            PacketPush(packet, buf);
+            sendto(sockfd, (char*)packet, sizeof(Packet), 0, server_addr, servlen);
+            delete packet;
+            recvfrom(sockfd, recvline, MAXLINE, 0,server_addr, &servlen);
+            packet = (Packet*)recvline;
+            if(string(packet->buf[0]) == success)
+                cout << "Invite Success!" << endl;
+            else
+                cout << "Invite Fail!" << endl;
+            break;
+        case SEARCH:
+            packet = NewPacket(0);
+            PacketPush(packet, sendData);
+            cout << "The Info" << endl;
+            cin >> buf;
+            PacketPush(packet, buf);
+            sendto(sockfd, (char*)packet, sizeof(Packet), 0, server_addr, servlen);
+            delete packet;
+            recvfrom(sockfd, recvline, MAXLINE, 0,server_addr, &servlen);
+            packet = (Packet*)recvline;
+            if(string(packet->artical) != "")   cout << packet->artical << endl;
+            else cout << "Search Fail!!!!" << endl;
             break;
         default:
             cout << "Unknown command" << endl;
