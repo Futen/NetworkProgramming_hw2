@@ -167,3 +167,44 @@ string UserClass::SearchUser(string info){
     }
     return string("");
 }
+string UserClass::ShowFriendArtical(string IP, int port){
+    string output = "";
+    char line[MAXLINE];
+    char buf[100];
+    vector<Artical*> friend_artical;
+    User* user = this->FindUserFromIPAndPort(IP, port);
+    if(user != NULL){
+        for(int i=0; i < user->friend_lst.size(); i++){
+            User* fri = this->FindUser(string("account"), user->friend_lst[i]);
+            if(fri != NULL){
+                for(Artical* tmp = fri->first_artical; tmp != NULL; tmp = tmp->next)
+                    friend_artical.push_back(tmp);
+            }
+        }
+    }
+    for(int i=0; i < friend_artical.size(); i++){
+        for(int j=i+1; j < friend_artical.size(); j++){
+            if(friend_artical[i]->time_tar > friend_artical[j]->time_tar){
+                Artical* tmp = friend_artical[i];
+                friend_artical[i] = friend_artical[j];
+                friend_artical[j] = tmp;
+            }
+        }
+    }
+    for(int i=0; i < friend_artical.size(); i++){
+        Artical* artical_tmp = friend_artical[i];
+        sprintf(buf, "%s", ctime(&artical_tmp->time_tar));
+        sprintf(line, "Artical ID: %d\tAuthor: %s\tTime: %s\tIP: %s\tport: %d\n", artical_tmp->index, artical_tmp->author.c_str(), buf, artical_tmp->IP.c_str(), artical_tmp->port);
+        output += string(line);
+        sprintf(line, "\tBegin\n\t\t%s\n\tEnd\n", artical_tmp->artical.c_str());
+        output += string(line);
+        for(Message* message_tmp = artical_tmp->first_message; message_tmp != NULL; message_tmp = message_tmp->next){
+            sprintf(buf, "%s", ctime(&message_tmp->time_tar));
+            sprintf(line, "\tMessage ID: %d\twho: %s\tTime: %s\n", message_tmp->index, message_tmp->who.c_str(), buf);
+            output += string(line);
+            sprintf(line, "\t\tBegin\n\t\t\t%s\n\t\tEnd\n", message_tmp->message.c_str());
+            output += string(line);
+        }
+    }
+    return output;
+}

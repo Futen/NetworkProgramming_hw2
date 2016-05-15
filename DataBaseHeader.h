@@ -104,6 +104,7 @@ public:
     bool DeleteUserArtical(string IP, int port, int artical_index);
     bool DeleteUserMessage(string IP, int port, string author_account, int artical_index, int message_index);
     string ShowUserArtical(string IP, int port);
+    string ShowFriendArtical(string IP, int port);
     Artical* ModifyArtical(string IP, int port, int artical_index, string artical);
     Message* ModifyMessage(string IP, int port, string artical_author , int artical_index, int message_index, string message);
     /***************/
