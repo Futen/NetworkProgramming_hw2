@@ -13,13 +13,13 @@ struct Message{
 struct Artical{
     int index;
     int message_count;
-    int like_count;
     string author;
     string artical;
     string time;
     string IP;
     time_t time_tar;
     int port;
+    vector<string> like_lst;
     Message* first_message;
     Message* last_message;
     Artical* next;
@@ -101,6 +101,8 @@ public:
     void SaveArtical();
     Artical* NewUserArtical(string IP, int port, string artical);
     Message* NewUserMessage(string IP, int port, string author_account, int artical_index, string message);
+    bool GiveLike(string IP, int port, string account, int artical_index);
+    bool UnLike(string IP, int port, string account, int artical_index);
     bool DeleteUserArtical(string IP, int port, int artical_index);
     bool DeleteUserMessage(string IP, int port, string author_account, int artical_index, int message_index);
     string ShowUserArtical(string IP, int port);

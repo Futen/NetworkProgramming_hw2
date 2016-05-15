@@ -405,6 +405,44 @@ void CommandProcess(int command, char* line, int sockfd, struct sockaddr *pcliad
             PacketPushArtical(packet_tmp, sendData);
             sendto(sockfd, (char*)packet_tmp, sizeof(Packet), 0, pcliaddr, clilen);
             delete packet_tmp;
+            break;
+        case SHOWFRIENDARTICAL:
+            packet_tmp = NewPacket(0);
+            PacketPushArtical(packet_tmp, userObject.ShowFriendArtical(IP, port));
+            sendto(sockfd, (char*)packet_tmp, sizeof(Packet), 0, pcliaddr, clilen);
+            delete packet_tmp;
+            break;
+        case LIKE:
+            account = packet->buf[1];
+            artical_index = atoi(packet->buf[2]);
+            packet_tmp = NewPacket(0);
+            if(userObject.GiveLike(IP, port, account, artical_index)){
+                userObject.SaveArtical();
+                PacketPush(packet_tmp, string(success));
+                sendto(sockfd, (char*)packet_tmp, sizeof(Packet), 0, pcliaddr, clilen);
+            }
+            else{
+                PacketPush(packet_tmp, string(fail));
+                sendto(sockfd, (char*)packet_tmp, sizeof(Packet), 0, pcliaddr, clilen);
+            }
+            delete packet_tmp;
+            break;
+        case UNLIKE:
+            account = packet->buf[1];
+            artical_index = atoi(packet->buf[2]);
+            packet_tmp = NewPacket(0);
+            if(userObject.UnLike(IP, port, account, artical_index)){
+                userObject.SaveArtical();
+                PacketPush(packet_tmp, string(success));
+                sendto(sockfd, (char*)packet_tmp, sizeof(Packet), 0, pcliaddr, clilen);
+            }
+            else{
+                PacketPush(packet_tmp, string(fail));
+                sendto(sockfd, (char*)packet_tmp, sizeof(Packet), 0, pcliaddr, clilen);
+            }
+            delete packet_tmp;
+            break;
+
     }
 }
 

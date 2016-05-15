@@ -226,6 +226,10 @@ void UserClass::ArticalInit(){
                     message_time = line;
                     message_tmp = this->CreateMessage(artical_tmp, who, message, message_time);
                 }
+                else if(line == "Like:"){
+                    getline(file, line);
+                    artical_tmp->like_lst.push_back(line);
+                }
             }
         }
     }
@@ -271,7 +275,6 @@ Artical* UserClass::CreateArtical(User *user, string artical){
     tmp->artical = artical;
     tmp->index = user->artical_index;
     tmp->message_count = 0;
-    tmp->like_count = 0;
     tmp->time = buf;
     tmp->time_tar = ticks;
     user->artical_index++;
@@ -389,6 +392,10 @@ void UserClass::SaveArtical(){
                 sprintf(t_buf, "%ld", (long int) mess_tmp->time_tar);
                 file << (string(t_buf) + "\n");
             }
+            for(int i=0; i<art_tmp->like_lst.size(); i++){
+                file << "Like:\n";
+                file << (art_tmp->like_lst[i] + "\n");
+            }
             file.close();
         }
     }
@@ -441,12 +448,26 @@ string UserClass::ShowUserArtical(string IP, int port){
     string output = "";
     char line[MAXLINE];
     char buf[100];
+    vector<Artical*> user_art;
     User* user = this->FindUserFromIPAndPort(IP, port);
     Artical* artical_tmp;
     Message* message_tmp;
-    for(Artical* artical_tmp=user->first_artical; artical_tmp!=NULL; artical_tmp=artical_tmp->next){
+    for(Artical* artical_tmp=user->first_artical; artical_tmp!=NULL; artical_tmp=artical_tmp->next)
+        user_art.push_back(artical_tmp);
+    for(int i=0; i<user_art.size(); i++){
+        for(int j=i+1; j<user_art.size(); j++){
+            if(user_art[i]->time_tar > user_art[j]->time_tar){
+                Artical* t = user_art[i];
+                user_art[i] = user_art[j];
+                user_art[j] = t;
+            }
+        }
+    }
+    for(int i=0; i<user_art.size(); i++){
+        Artical* artical_tmp = user_art[i];
+        User* usr = this->FindUser(string("account"), artical_tmp->author);
         sprintf(buf, "%s", ctime(&artical_tmp->time_tar));
-        sprintf(line, "Artical ID: %d\tAuthor: %s\tTime: %s\tIP: %s\tport: %d\n", artical_tmp->index, artical_tmp->author.c_str(), buf, artical_tmp->IP.c_str(), artical_tmp->port);
+        sprintf(line, "Artical ID: %d\tAuthor: %s(%s)\tTime: %s\tLikes: %d\tIP: %s\tport: %d\n", artical_tmp->index, artical_tmp->author.c_str(), usr->nickname.c_str(), buf, (int)artical_tmp->like_lst.size(), artical_tmp->IP.c_str(), artical_tmp->port);
         output += string(line);
         sprintf(line, "\tBegin\n\t\t%s\n\tEnd\n", artical_tmp->artical.c_str());
         output += string(line);
@@ -524,8 +545,42 @@ bool UserClass::DeleteUserMessage(string IP, int port, string author_account, in
     }
     return false;
 }
-
-
+bool UserClass::GiveLike(string IP, int port, string account, int artical_index){
+    User* user = this->FindUserFromIPAndPort(IP, port);
+    Artical* art = this->FindArticalFromIndex(account, artical_index);
+    //cout << account << endl;
+    //cout << artical_index << endl;
+    if(user != NULL && art != NULL){
+        int check = 0;
+        for(int i=0; i<art->like_lst.size(); i++){
+            if(art->like_lst[i] == user->account){
+                check = 1;
+                break;
+            }
+        }
+        if(check == 0){
+            art->like_lst.push_back(user->account);
+            return true;
+        }
+        else
+            return false;
+    }
+    return false;
+}
+bool UserClass::UnLike(string IP, int port, string account, int artical_index){
+    User* user = this->FindUserFromIPAndPort(IP, port);
+    Artical* art = this->FindArticalFromIndex(account, artical_index);
+    if(art != NULL && user != NULL){
+        vector<string>::iterator i;
+        for(i=art->like_lst.begin(); i!=art->like_lst.end(); i++){
+            if(*i == user->account){
+                art->like_lst.erase(i);
+                return true;
+            }
+        }
+    }
+    return false;
+}
 
 
 

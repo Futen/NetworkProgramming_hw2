@@ -110,6 +110,9 @@ void ShowCommand(){
     cout << "***************" << endl;
     cout << "$ ShowMyInfo" << endl;
     cout << "$ ShowMyArtical" << endl;
+    cout << "$ ShowFriendArtical" << endl;
+    cout << "$ GiveLike" << endl;
+    cout << "$ UnLike" << endl;
     cout << "$ NewArtical" << endl;
     cout << "$ ModifyMyArtical" << endl;
     cout << "$ DeleteMyArtical" << endl;
@@ -148,6 +151,9 @@ string GetCommandString(string input){
     else if(input == "AcceptMyInvite") return string("ACCEPTINVITE");
     else if(input == "InviteWho") return string("INVITE");
     else if(input == "SearchWho") return string("SEARCH");
+    else if(input == "ShowFriendArtical") return string("SHOWFRIENDARTICAL");
+    else if(input == "GiveLike") return string("LIKE");
+    else if(input == "UnLike") return string("UNLIKE");
     else    return string("UNKNOWN");
 }
 void ProcessCommand(int command, string sendData, int sockfd, struct sockaddr *server_addr, socklen_t servlen){
@@ -431,6 +437,51 @@ void ProcessCommand(int command, string sendData, int sockfd, struct sockaddr *s
             packet = (Packet*)recvline;
             if(string(packet->artical) != "")   cout << packet->artical << endl;
             else cout << "Search Fail!!!!" << endl;
+            break;
+        case SHOWFRIENDARTICAL:
+            packet = NewPacket(0);
+            PacketPush(packet, sendData);
+            sendto(sockfd, (char*)packet, sizeof(Packet), 0, server_addr, servlen);
+            delete packet;
+            recvfrom(sockfd, recvline, MAXLINE, 0,server_addr, &servlen);
+            packet = (Packet*)recvline;
+            cout << packet->artical;
+            break;
+        case LIKE:
+            packet = NewPacket(0);
+            PacketPush(packet, sendData);
+            cout << "The Account:" << endl;
+            cin >> buf;
+            PacketPush(packet, buf);
+            cout << "The Index:" << endl;
+            cin >> buf;
+            PacketPush(packet, buf);
+            sendto(sockfd, (char*)packet, sizeof(Packet), 0, server_addr, servlen);
+            delete packet;
+            recvfrom(sockfd, recvline, MAXLINE, 0,server_addr, &servlen);
+            packet = (Packet*)recvline;
+            if(string(packet->buf[0]) == success)
+                cout << "Give Like Success!" << endl;
+            else
+                cout << "Give Like Fail!" << endl;
+            break;
+        case UNLIKE:
+            packet = NewPacket(0);
+            PacketPush(packet, sendData);
+            cout << "The Account:" << endl;
+            cin >> buf;
+            PacketPush(packet, buf);
+            cout << "The Index:" << endl;
+            cin >> buf;
+            PacketPush(packet, buf);
+            sendto(sockfd, (char*)packet, sizeof(Packet), 0, server_addr, servlen);
+            delete packet;
+            recvfrom(sockfd, recvline, MAXLINE, 0,server_addr, &servlen);
+            packet = (Packet*)recvline;
+            if(string(packet->buf[0]) == success)
+                cout << "UnLike Success!" << endl;
+            else
+                cout << "UnLike Fail!" << endl;
             break;
         default:
             cout << "Unknown command" << endl;

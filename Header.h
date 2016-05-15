@@ -47,6 +47,9 @@
 #define ACCEPTINVITE 18
 #define INVITE 19
 #define SEARCH 20
+#define SHOWFRIENDARTICAL 21
+#define LIKE 22
+#define UNLIKE 23
 
 using namespace std;
 typedef struct PACKET{

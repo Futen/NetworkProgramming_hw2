@@ -193,8 +193,9 @@ string UserClass::ShowFriendArtical(string IP, int port){
     }
     for(int i=0; i < friend_artical.size(); i++){
         Artical* artical_tmp = friend_artical[i];
+        User* usr = this->FindUser(string("account"), artical_tmp->author);
         sprintf(buf, "%s", ctime(&artical_tmp->time_tar));
-        sprintf(line, "Artical ID: %d\tAuthor: %s\tTime: %s\tIP: %s\tport: %d\n", artical_tmp->index, artical_tmp->author.c_str(), buf, artical_tmp->IP.c_str(), artical_tmp->port);
+        sprintf(line, "Artical ID: %d\tAuthor: %s(%s)\tTime: %s\tLikes: %d\tIP: %s\tport: %d\n", artical_tmp->index, artical_tmp->author.c_str(), usr->nickname.c_str(), buf, (int)artical_tmp->like_lst.size(), artical_tmp->IP.c_str(), artical_tmp->port);
         output += string(line);
         sprintf(line, "\tBegin\n\t\t%s\n\tEnd\n", artical_tmp->artical.c_str());
         output += string(line);

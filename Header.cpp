@@ -43,6 +43,12 @@ int CommandChoose(string command){
         return INVITE;
     else if(command == "SEARCH")
         return SEARCH;
+    else if(command == "SHOWFRIENDARTICAL")
+        return SHOWFRIENDARTICAL;
+    else if(command == "LIKE")
+        return LIKE;
+    else if(command == "UNLIKE")
+        return UNLIKE;
     else
         return DEFAULT;
 }
