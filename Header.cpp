@@ -49,6 +49,10 @@ int CommandChoose(string command){
         return LIKE;
     else if(command == "UNLIKE")
         return UNLIKE;
+    else if(command == "SHOWLOGIN")
+        return SHOWLOGIN;
+    else if(command == "SHOWLOGOUT")
+        return SHOWLOGOUT;
     else
         return DEFAULT;
 }

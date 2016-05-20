@@ -50,6 +50,8 @@
 #define SHOWFRIENDARTICAL 21
 #define LIKE 22
 #define UNLIKE 23
+#define SHOWLOGIN 24
+#define SHOWLOGOUT 25
 
 using namespace std;
 typedef struct PACKET{

@@ -122,6 +122,8 @@ void ShowCommand(){
     cout << "$ DeleteMyAccount" << endl;
     cout << "$ ModifyMyAccount" << endl;
     cout << "$ ShowMyFriend" << endl;
+    cout << "$ ShowLoginFriend" << endl;
+    cout << "$ ShowLogoutFriend" << endl;
     cout << "$ RemoveMyFriend" << endl;
     cout << "$ ShowMyInvite" << endl;
     cout << "$ InviteWho" << endl;
@@ -154,6 +156,8 @@ string GetCommandString(string input){
     else if(input == "ShowFriendArtical") return string("SHOWFRIENDARTICAL");
     else if(input == "GiveLike") return string("LIKE");
     else if(input == "UnLike") return string("UNLIKE");
+    else if(input == "ShowLoginFriend") return string("SHOWLOGIN");
+    else if(input == "ShowLogoutFriend") return string("SHOWLOGOUT");
     else    return string("UNKNOWN");
 }
 void ProcessCommand(int command, string sendData, int sockfd, struct sockaddr *server_addr, socklen_t servlen){
@@ -483,6 +487,25 @@ void ProcessCommand(int command, string sendData, int sockfd, struct sockaddr *s
             else
                 cout << "UnLike Fail!" << endl;
             break;
+        case SHOWLOGIN:
+            packet = NewPacket(0);
+            PacketPush(packet, sendData);
+            sendto(sockfd, (char*)packet, sizeof(Packet), 0, server_addr, servlen);
+            delete packet;
+            recvfrom(sockfd, recvline, MAXLINE, 0,server_addr, &servlen);
+            packet = (Packet*)recvline;
+            cout << packet->artical;
+            break;
+        case SHOWLOGOUT:
+            packet = NewPacket(0);
+            PacketPush(packet, sendData);
+            sendto(sockfd, (char*)packet, sizeof(Packet), 0, server_addr, servlen);
+            delete packet;
+            recvfrom(sockfd, recvline, MAXLINE, 0,server_addr, &servlen);
+            packet = (Packet*)recvline;
+            cout << packet->artical;
+            break;
+       
         default:
             cout << "Unknown command" << endl;
     }

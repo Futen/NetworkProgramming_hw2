@@ -176,7 +176,7 @@ void CommandProcess(int command, char* line, int sockfd, struct sockaddr *pcliad
             break;
         case LOGOUT:
             if((check = userObject.UserLogout(IP, port)) != NULL){
-                //userObject.SaveUserList();
+                userObject.SaveUserList();
                 packet_tmp = NewPacket(0);
                 PacketPush(packet_tmp, success);
                 sendto(sockfd, (char*)packet_tmp, sizeof(Packet), 0,pcliaddr, clilen);
@@ -442,7 +442,20 @@ void CommandProcess(int command, char* line, int sockfd, struct sockaddr *pcliad
             }
             delete packet_tmp;
             break;
-
+        case SHOWLOGIN:
+            sendData = userObject.ShowLoginFriend(IP, port);
+            packet_tmp = NewPacket(0);
+            PacketPushArtical(packet_tmp, sendData);
+            sendto(sockfd, (char*)packet_tmp, sizeof(Packet), 0, pcliaddr, clilen);
+            delete packet_tmp;
+            break;
+        case SHOWLOGOUT:
+            sendData = userObject.ShowLogoutFriend(IP, port);
+            packet_tmp = NewPacket(0);
+            PacketPushArtical(packet_tmp, sendData);
+            sendto(sockfd, (char*)packet_tmp, sizeof(Packet), 0, pcliaddr, clilen);
+            delete packet_tmp;
+            break;
     }
 }
 

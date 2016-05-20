@@ -120,6 +120,8 @@ public:
     string ShowUserFriend(string IP, int port);
     string ShowUserInvite(string account);
     string ShowUserInvite(string IP, int port);
+    string ShowLoginFriend(string IP, int port);
+    string ShowLogoutFriend(string IP, int port);
     bool RemoveFriend(string user_account, string friend_name);
     bool RemoveInvite(string user_account, string who);
     bool InviteAggree(string user_account, string friend_account);

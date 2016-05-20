@@ -143,9 +143,11 @@ User* UserClass::UserLogin(string account, string password, string IP, int port)
     return NULL;
 }
 User* UserClass::UserLogout(string IP, int port){
+    time_t ticks = time(NULL);
     User *who = this->FindUserFromIPAndPort(IP, port);
     if(who != NULL){
         who->islogin = 0;
+        who->last_time_t = ticks;
         return who;
     }
     else

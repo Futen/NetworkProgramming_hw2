@@ -209,3 +209,33 @@ string UserClass::ShowFriendArtical(string IP, int port){
     }
     return output;
 }
+string UserClass::ShowLoginFriend(string IP, int port){
+    string output = "";
+    User* user = this->FindUserFromIPAndPort(IP, port);
+    for(int i=0; i < user->friend_lst.size(); i++){
+        User* Friend = this->FindUser(string("account"), user->friend_lst[i]);
+        if(Friend != NULL){
+            if(Friend->islogin){
+                output += string("Online: ") + Friend->account + string("\n");
+            }
+        }
+    }
+    return output;
+}
+string UserClass::ShowLogoutFriend(string IP, int port){
+    time_t ticks = time(NULL);
+    string output = "";
+    User* user = this->FindUserFromIPAndPort(IP, port);
+    for(int i=0; i < user->friend_lst.size(); i++){
+        User* Friend = this->FindUser(string("account"), user->friend_lst[i]);
+        if(Friend != NULL){
+            if(!Friend->islogin){
+                char buf[MAXLINE];
+                sprintf(buf, "Logout %f minutes: %s\n", (ticks - Friend->last_time_t)/60.0, Friend->account.c_str());
+                output += buf;
+            }
+        }
+    }
+    return output;
+
+}
